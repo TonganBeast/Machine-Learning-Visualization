@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 
 void Display() {
 	glClear(GL_COLOR_BUFFER_BIT);
-	MD_Graph graph("Three_Four_Dimensional_Points.txt");
+	MD_Graph graph("One_Five_Dimensional_Point.txt");
 	graph.printPlanePts(0);
 }
 
