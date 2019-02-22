@@ -16,11 +16,14 @@ int main(int argc, char** argv) {
 	glutDisplayFunc(Display);
 	Init();
 	glutMainLoop();
+
+	//~
+	return 0;
 }
 
 void Display() {
 	glClear(GL_COLOR_BUFFER_BIT);
-	MD_Graph graph("One_Five_Dimensional_Point.txt");
+	MD_Graph graph("iris-data.txt");
 	graph.printPlanePts(0);
 }
 

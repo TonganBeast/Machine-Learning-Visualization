@@ -1,15 +1,18 @@
 #pragma once
+#include <string>
+#include "Classification.h"
 
 class Point {
 private:
 	float coordinateX = 0, coordinateY = 0;
 	float worldX = 0, worldY = 0;
+	Classification classification;
 public:
 	//constructors
 	Point();
 	Point(float&, float&, float&, float&);
-	Point(int, int);
-	Point(double, double);
+	Point(int, int, int, int);
+	Point(double, double, double, double);
 	//copy constructor
 	Point(const Point&);
 	//move constructor
@@ -24,8 +27,17 @@ public:
 	float getWorldX();
 	float getWorldY();
 	//setters for X and Y, respectively
-	void setX(float, float, float, int);
-	void setY(float, float, float, int);
+	void setCoordX(float);
+	void setCoordY(float);
+	//setters for classification
+	void setClassification(std::string);
+	void setClassification(Classification);
+	void setClassification(std::string, float*);
+	//getter for classification
+	Classification getClassification();
+	//wrapper for setting color
+	void setClassColor(float*);
+	void calcWorldPosition(float, float, float, float, int);
 	Point& getPoint();
 	void printPt();
 };
