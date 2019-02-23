@@ -1,0 +1,5 @@
+﻿  BruteForceML.cpp
+  Main.cpp
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\main.cpp(87): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...
+  BruteForceML.vcxproj -> C:\Users\altim\Documents\School\CS481\BruteForceML\Debug\BruteForceML.exe
