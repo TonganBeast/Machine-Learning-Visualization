@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 
 	// Begin the brute force.
 	BruteForce bruting = BruteForce(classes);
-	vector<DominantSquare> dominantSquares = bruting.run();
+	vector<Plane> planes = bruting.run();
 
 	system("pause");
 	return 0;
