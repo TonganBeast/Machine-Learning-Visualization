@@ -1,6 +1,11 @@
 ﻿  BruteForceML.cpp
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(29): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(39): warning C4018: '<': signed/unsigned mismatch
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(42): warning C4018: '<': signed/unsigned mismatch
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(62): warning C4018: '<': signed/unsigned mismatch
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(24): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(45): warning C4018: '<': signed/unsigned mismatch
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(48): warning C4018: '<': signed/unsigned mismatch
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(57): warning C4018: '<': signed/unsigned mismatch
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(84): warning C4018: '<': signed/unsigned mismatch
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(195): warning C4018: '<': signed/unsigned mismatch
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(205): warning C4018: '<': signed/unsigned mismatch
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(210): warning C4018: '<': signed/unsigned mismatch
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(221): warning C4018: '<': signed/unsigned mismatch
   BruteForceML.vcxproj -> C:\Users\altim\Documents\School\CS481\BruteForceML\Debug\BruteForceML.exe
