@@ -195,11 +195,6 @@ void BruteForce::setDomSquareLimits()
 	for (int i = 0; i < classes.size(); i++)
 	{
 		DataClass classData = classes[i];
-
-		double xMin = DBL_MAX;
-		double xMax = DBL_MIN;
-		double yMin = DBL_MAX;
-		double yMax = DBL_MIN;
 		
 		// For each Set of Planes.
 		for (int ps = 0; ps < setOfPlanes.size(); ps++)
@@ -216,6 +211,11 @@ void BruteForce::setDomSquareLimits()
 				// Initialize the class limits for dominant squares.
 				ClassSquareLimits classLimits;
 				classLimits.className = classData.className;
+
+				double xMin = DBL_MAX;
+				double xMax = DBL_MIN;
+				double yMin = DBL_MAX;
+				double yMax = DBL_MIN;
 
 				// Determine the min/max X and Y for the two attributes.
 				for (int d = 0; d < classData.classDataset.size(); d++)
