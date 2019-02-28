@@ -19,7 +19,7 @@ using namespace std;
 struct DataClass
 {
 	string className;
-	vector<vector<double>> classDataset;
+	vector<vector<float>> classDataset;
 };
 */
 vector<DataClass> classes;
@@ -30,6 +30,7 @@ int main(int argc, char** argv)
 	// Read from file.
 	string filename = "iris-data.txt";
 
+	/*
 	// Open the file an make sure it exists.
 	ifstream inputFile(filename);
 	if (inputFile.fail())
@@ -83,7 +84,7 @@ int main(int argc, char** argv)
 		}
 
 		// Extract data from tokenized string.
-		vector<double> data;
+		vector<float> data;
 		for (int i = 0; i < tokenized.size() - 1; i++)
 		{
 			data.push_back(stod(tokenized[i]));
@@ -98,7 +99,10 @@ int main(int argc, char** argv)
 
 	// Begin the brute force.
 	BruteForce bruting = BruteForce(classes);
-	vector<Plane> planes = bruting.run();
+	*/
+
+	BruteForce bruting = BruteForce(filename);
+	vector<MLPlane> planes = bruting.run();
 
 	system("pause");
 	return 0;
