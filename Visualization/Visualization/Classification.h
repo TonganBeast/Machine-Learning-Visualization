@@ -3,7 +3,6 @@
 
 class Classification {
 private:
-	float r = 0.0, g = 0.0, b = 0.0;
 	std::string classificationTitle;
 public:
 	Classification(std::string);
@@ -11,8 +10,12 @@ public:
 	Classification();
 	Classification(const Classification&);
 	Classification(Classification&&);
-	Classification operator=(const Classification&);
-	Classification operator=(Classification&&);
+	Classification& operator=(const Classification&);
+	Classification& operator=(Classification&&);
+	Classification& getClassification();
+	float r = 0.0f;
+	float g = 0.0f;
+	float b = 0.0f;
 
 	std::string getClassificationTitle();
 	//setters for this classification's color

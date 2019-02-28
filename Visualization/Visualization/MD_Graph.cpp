@@ -8,6 +8,7 @@ MD_Graph::MD_Graph(std::string fileName) {
 	int numDimensions = findNumDimensions(fileName);
 	//find the number of points in the file
 	int numPoints = findNumPoints(fileName);
+	numMD_Points = numPoints;
 	//calculate the number of planes using the number of dimensions
 	numPlanes = calcNumPlanes(numDimensions);
 	//create the combinations of axes which will be plotted on planes
@@ -21,11 +22,9 @@ MD_Graph::MD_Graph(std::string fileName) {
 
 
 	std::cout << "number of different classifications: " << uniqueClassifications.size() << std::endl;
-	associateColors();
 	for (int i = 0; i < numMD_Points; i++) {
-		std::cout << classificationForPoints[i].getTitle() << std::endl;
+		//std::cout << classificationForPoints[i].getTitle() << std::endl;
 	}
-	//updatePtsClassification();
 	//read data from file, and then parse it
 	std::vector<std::vector<float>> points = parseData(readData_v(fileName), numDimensions);
 	
@@ -35,7 +34,15 @@ MD_Graph::MD_Graph(std::string fileName) {
 		}
 		std::cout << std::endl;
 	}*/
-
+	associateColors();
+	std::cout << "color for class 1: [" << uniqueClassifications[0].getClassification().getRed() << ", " << uniqueClassifications[0].getClassification().getGreen() << 
+		", " << uniqueClassifications[0].getClassification().getBlue() << "]\n";
+	std::cout << "color for class 2: [" << uniqueClassifications[1].getClassification().getRed() << ", " << uniqueClassifications[1].getClassification().getGreen() <<
+		", " << uniqueClassifications[1].getClassification().getBlue() << "]\n";
+	std::cout << "color for class 3: [" << uniqueClassifications[2].getClassification().getRed() << ", " << uniqueClassifications[2].getClassification().getGreen() <<
+		", " << uniqueClassifications[2].getClassification().getBlue() << "]\n";
+	std::cout << "Calling updatePtsClassification\n";
+	updatePtsClassification();
 	//create a vector of planes and build them
 	std::vector<Plane> planes(numPlanes);
 	for (int i = 0; i < numPlanes; i++) {
@@ -43,7 +50,9 @@ MD_Graph::MD_Graph(std::string fileName) {
 		printPlanePts(i);
 		std::cout << "plane " << i << " relative bounds: (" << planes[i].getRelativeWidth() << ", " << planes[i].getRelativeHeight() << ")" << std::endl;
 	}
-
+	std::cout << "---" << std::endl;
+	std::cout << "(" << planes[0].getPoint(0).getCoordinateX() << ", " << planes[0].getPoint(0).getCoordinateY() << "): " << planes[0].getPoint(0).getClassification().getClassificationTitle() << std::endl;
+	std::cout << "---" << std::endl;
 	//build and display the multi-dimensional graph
 	buildGraph(planes, numPlanes, numPoints);
 }
@@ -126,6 +135,7 @@ std::vector<std::string> MD_Graph::readData_v(std::string fileName) {
 //function takes in data read from readData function and parses the strings for the
 //desired numerical values, then returns them in a 2D vector points[numDimensions][numPoints]
 std::vector<std::vector<float>> MD_Graph::parseData(std::vector<std::string> data, int numDimensions) {
+	std::cout << "this is parseData\n";
 	//initialize variables for tokenizing data's strings
 	char* cLine;
 	char* cTokens;
@@ -151,8 +161,11 @@ std::vector<std::vector<float>> MD_Graph::parseData(std::vector<std::string> dat
 			points[row].push_back(fValue);
 			cValue = strtok(NULL, ", ");
 		}
-		std::cout << cValue << std::endl;
-		classificationForPoints.push_back(Classification(cValue));
+		//std::cout << cValue << "\n";
+		//std::cout << cValue << std::endl;
+		std::string classStr(cValue);
+		Classification c(classStr);
+		classificationForPoints.push_back(c);
 
 		//std::cout << std::endl;
 	}
@@ -294,32 +307,6 @@ bool MD_Graph::randomizeDimensions(int *dimensions, int numDim) {
 	return true;
 }
 
-void MD_Graph::buildGraph() {
-	//first draw each plane and its points
-	for (int i = 0; i < numPlanes; i++) {
-		planes[i].drawPlane(i);
-		planes[i].drawPoints(classificationList);
-	}
-	//next access the points on the planes and draw lines between them
-	std::string classificationCheck, currentClassification = classificationList[0];
-	for (int i = 0; i < numPlanes - 1; i++) {
-		for (int j = 0; j < numMD_Points; j++) {
-			classificationCheck = classificationList[j];
-			float startX = planes[i].getPoint(j).getWorldX();
-			float endX = planes[i + 1].getPoint(j).getWorldX();
-			float startY = planes[i].getPoint(j).getWorldY();
-			float endY = planes[i + 1].getPoint(j).getWorldY();
-			/*std::cout << "Drawing line from (" << (float)planes[i].getPoint(j).getWorldX() << ", " << planes[i].getPoint(j).getWorldY() <<
-				") to (" << planes[i + 1].getPoint(j).getWorldX() << ", " << planes[i + 1].getPoint(j).getWorldY() << ")" << std::endl;*/
-			glBegin(GL_LINES);
-			glVertex2f(startX, startY);
-			glVertex2f(endX, endY);
-			glEnd();
-			glFlush();
-		}
-	}
-}
-
 void MD_Graph::buildGraph(std::vector<Plane> planes, int numPlanes, int numPoints) {
 	//draw each plane and that plane's respective points
 	for (int i = 0; i < numPlanes; i++) {
@@ -329,19 +316,13 @@ void MD_Graph::buildGraph(std::vector<Plane> planes, int numPlanes, int numPoint
 	//next access the points on the planes and draw lines between them
 	for (int i = 0; i < numPlanes - 1; i++) {
 		for (int j = 0; j < numPoints; j++) {
-			if (j < 50)
-				glColor3f(1.0, 0.0, 0.0);
-			else if (j >= 50 && j < 100)
-				glColor3f(0.0, 1.0, 0.0);
-			else
-				glColor3f(0.0, 0.0, 1.0);
 			float startX = planes[i].getPoint(j).getWorldX();
 			float endX = planes[i + 1].getPoint(j).getWorldX();
 			float startY = planes[i].getPoint(j).getWorldY();
 			float endY = planes[i + 1].getPoint(j).getWorldY();
-			/*std::cout << "Drawing line from (" << (float)planes[i].getPoint(j).getWorldX() << ", " << planes[i].getPoint(j).getWorldY() <<
-				") to (" << planes[i + 1].getPoint(j).getWorldX() << ", " << planes[i + 1].getPoint(j).getWorldY() << ")" << std::endl;*/
+
 			glBegin(GL_LINES);
+			glColor3f(planes[i].getPoint(j).getClassification().r, planes[i].getPoint(j).getClassification().g, planes[i].getPoint(j).getClassification().b);
 			glVertex2f(startX, startY);
 			glVertex2f(endX, endY);
 			glEnd();
@@ -351,8 +332,8 @@ void MD_Graph::buildGraph(std::vector<Plane> planes, int numPlanes, int numPoint
 }
 
 void MD_Graph::printPlanePts(int planeIndex) {
-	for (int i = 0; i < numMD_Points; i++)
-		planes[planeIndex].getPoint(i).printPt();
+	//for (int i = 0; i < numMD_Points; i++)
+		//planes[planeIndex].getPoint(i).printPt();
 }
 
 void MD_Graph::findClassifications(std::string fileName, int numDimensions) {
@@ -372,13 +353,11 @@ void MD_Graph::findClassifications(std::string fileName, int numDimensions) {
 		for(int i = 0; i < numDimensions; i++)
 			cTokens = strtok(NULL, ", ");
 
-		//std::cout << "Last token: " << cTokens << std::endl;
 		//check that the currently identified class does not already exist within the
 		//classifications vector
 		if(uniqueClassifications.size() == 0)
 			uniqueClassifications.push_back(Classification(cTokens, CLASS_RED));
 		else if (!alreadyClassified(std::string(cTokens))) {
-			std::cout << cTokens << " is not already classified.\n";
 			if (uniqueClassifications.size() < 2)
 				uniqueClassifications.push_back(Classification(cTokens, CLASS_GREEN));
 			else
@@ -398,33 +377,45 @@ void MD_Graph::findClassifications(std::string fileName, int numDimensions) {
 bool MD_Graph::alreadyClassified(std::string newClassification) {
 	for (int i = 0; i < uniqueClassifications.size(); i++) {
 		//if the two strings are the same, return true
-		if (newClassification == uniqueClassifications[i].getClassificationTitle()) {
-			//std::cout << newClassification << " is the same as " << classifications[i].getClassificationTitle() << std::endl;
+		if (newClassification == uniqueClassifications[i].getClassificationTitle())
 			return true;
-		}
-		else ;
-			//std::cout << newClassification << " is not the same as " << classifications[i].getClassificationTitle() << std::endl;
 	}
 	//if this point is reached, classification must not already exist within the vector
 	return false;
 }
 
+//
 void MD_Graph::associateColors() {
-	uniqueClassifications[0].setColor(CLASS_RED);
-	uniqueClassifications[1].setColor(CLASS_GREEN);
-	uniqueClassifications[2].setColor(CLASS_BLUE);
+	switch (uniqueClassifications.size()) {
+		case 1:
+			uniqueClassifications[0].getClassification().setColor(1.0, 0.0, 0.0);		//single red classification
+			break;
+		case 2:
+			uniqueClassifications[0].getClassification().setColor(1.0, 0.0, 0.0);		//one red classification
+			uniqueClassifications[1].getClassification().setColor(0.0, 0.0, 1.0);		//one blue classification
+			break;
+		case 3:
+			uniqueClassifications[0].getClassification().setColor(1.0, 0.0, 0.0);		//one red classification
+			uniqueClassifications[1].getClassification().setColor(0.0, 0.0, 1.0);		//one blue classification
+			uniqueClassifications[2].getClassification().setColor(0.0, 1.0, 0.0);		//one green classification
+			break;
+		default:
+			break;
+	}
 }
 
 void MD_Graph::updatePtsClassification() {
+	//for every multi-dimensional point
+	std::cout << "uniqueClassifications.size(): " << uniqueClassifications.size() << std::endl;
+	std::cout << "classificationForPoints.size(): " << classificationForPoints.size() << std::endl;
 	for (int i = 0; i < numMD_Points; i++) {
+		//for every unique classification
 		for (int j = 0; j < uniqueClassifications.size(); j++) {
+			//if the classification in classificationForPoints and the classification in uniqueClassifications share the same name,
+			//then update the classification in classificationForPoints to the same state as the classification in uniqueClassifications
 			if (classificationForPoints[i].sameTitle(uniqueClassifications[j])) {
-				classificationForPoints[i] = uniqueClassifications[j];
-				std::cout << "classificationForPoints[" << i << "] now has color [" << classificationForPoints[i].getRed() << ", "
-					<< classificationForPoints[i].getGreen() << ", " << classificationForPoints[i].getBlue() << "]" << std::endl;
+				classificationForPoints[i].getClassification() = uniqueClassifications[j].getClassification();
 			}
-			if (i < 50 && j < 1)
-				std::cout << classificationForPoints[i].getTitle() << " is not the same as " << uniqueClassifications[j].getTitle() << std::endl;
 		}
 	}
 }

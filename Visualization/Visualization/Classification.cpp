@@ -23,9 +23,9 @@ std::string Classification::getClassificationTitle() {
 }
 
 Classification::Classification(const Classification& other) {
-	this->r = other.r;
-	this->g = other.g;
-	this->b = other.b;
+	r = other.r;
+	g = other.g;
+	b = other.b;
 	classificationTitle = other.classificationTitle;
 }
 
@@ -40,18 +40,25 @@ Classification::Classification(Classification&& other) {
 	other.classificationTitle.clear();
 }
 
-Classification Classification::operator=(const Classification& other) {
-	return Classification(other.classificationTitle, other.r, other.g, other.b);
+Classification& Classification::operator=(const Classification& other) {
+	classificationTitle = other.classificationTitle;
+	r = other.r;
+	g = other.g;
+	b = other.b;
+	return *this;
 }
 
-Classification Classification::operator=(Classification&& other) {
+Classification& Classification::operator=(Classification&& other) {
 	float clr[3] = { other.r, other.g, other.b };
+	r = clr[0];
+	g = clr[1];
+	b = clr[2];
 	std::string ttl = other.classificationTitle;
 	other.r = 0;
 	other.g = 0;
 	other.b = 0;
 	other.classificationTitle.clear();
-	return Classification(ttl, other.r, other.g, other.b);
+	return *this;
 }
 
 void Classification::setColor(float r, float g, float b) {
@@ -81,4 +88,8 @@ bool Classification::sameTitle(Classification c) {
 
 std::string Classification::getTitle() {
 	return this->classificationTitle;
+}
+
+Classification& Classification::getClassification() {
+	return *this;
 }

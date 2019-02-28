@@ -42,6 +42,7 @@ Point::Point(const Point& other) {
 	coordinateY = other.coordinateY;
 	worldX = other.worldX;
 	worldY = other.worldY;
+	classification = other.classification;
 }
 
 //move constructor

@@ -49,11 +49,8 @@ Plane::Plane(int planePosition, int numPoints, int xDimension, int yDimension, s
 		twoD_Points_v[pointIndex].setCoordY(y);
 		//set point's classification
 		twoD_Points_v[pointIndex].setClassification(c);
-		//std::cout << "Assigning classification " << c.getClassificationTitle() << " to point " << numPoints - pointIndex << std::endl;
 		//set the point's world coordinates
 		twoD_Points_v[pointIndex].calcWorldPosition(relativeWidth, relativeHeight, realWidth, windowOffset, planeIndex);
-		//std::cout << "point " << pointIndex << ":\n   coordinate: (" << x << ", " << y << ")" << std::endl;
-		//std::cout << "   world: (" << twoD_Points_v[pointIndex].getWorldX() << ", " << twoD_Points_v[pointIndex].getWorldY() << ")" << std::endl;
 		//increment pointIndex
 		pointIndex++;
 	}
@@ -90,14 +87,10 @@ void Plane::drawPoints(std::string *classificationList) {
 			glColor3f(0.0, 1.0, 0.0);
 		else
 			glColor3f(0.0, 0.0, 1.0);
-		/*std::cout << "class " << twoD_Points[i].getClassification().getClassificationTitle() << " has color: ["
-			<< twoD_Points[i].getClassification().getRed() << ", " << twoD_Points[i].getClassification().getGreen() << ", " <<
-			twoD_Points[i].getClassification().getBlue() << "]" << std::endl; */
+
 		twoD_Points[i].getPoint();
 		twoD_Points[i].getPoint().getWorldX();
 		twoD_Points[i].getPoint().getWorldY();
-		//std::cout << "Drawing point in its plane at " << twoD_Points[i].getPoint().getCoordinateX() << ", " << twoD_Points[i].getPoint().getCoordinateY() << std::endl;
-		//std::cout << "Drawing point in world window at " << twoD_Points[i].getPoint().getWorldX() << ", " << twoD_Points[i].getPoint().getWorldY() << std::endl;
 		glVertex2f(twoD_Points[i].getWorldX(), twoD_Points[i].getWorldY());
 	}
 	glEnd();
@@ -107,15 +100,7 @@ void Plane::drawPoints(std::string *classificationList) {
 void Plane::drawPoints() {
 	glBegin(GL_POINTS);
 	for (int i = 0; i < numPoints; i++) {
-		if (i < 50)
-			glColor3f(1.0, 0.0, 0.0);
-		else if (i >= 50 && i < 100)
-			glColor3f(0.0, 1.0, 0.0);
-		else
-			glColor3f(0.0, 0.0, 1.0);
-		/*std::cout << "class " << twoD_Points_v[i].getClassification().getClassificationTitle() << " has color: ["
-			<< twoD_Points_v[i].getClassification().getRed() << ", " << twoD_Points_v[i].getClassification().getGreen() << ", " <<
-		twoD_Points_v[i].getClassification().getBlue() << "]" << std::endl;*/
+		glColor3f(twoD_Points_v[i].getPoint().getClassification().r, twoD_Points_v[i].getPoint().getClassification().g, twoD_Points_v[i].getPoint().getClassification().b);
 		twoD_Points_v[i].getPoint();
 		twoD_Points_v[i].getPoint().getWorldX();
 		twoD_Points_v[i].getPoint().getWorldY();
