@@ -17,17 +17,21 @@ Point::Point(float &px, float &py, float &wx, float &wy) {
 //integer-argument constructor
 //casts integer arguments as floats and assigns them to coordinateX
 //and coordinateY respectively
-Point::Point(int x, int y) {
-	coordinateX = (float)x;
-	coordinateY = (float)y;
+Point::Point(int px, int py, int wx, int wy) {
+	coordinateX = (float)px;
+	coordinateY = (float)py;
+	worldX = (float)wx;
+	worldY = (float)wy;
 }
 
 //double-argument constructor
 //casts double arguments as floats and assigns them to coordinateX
 //and coordinateY respectively
-Point::Point(double x, double y) {
-	coordinateX = float(x);
-	coordinateY = float(y);
+Point::Point(double px, double py, double wx, double wy) {
+	coordinateX = (float)px;
+	coordinateY = (float)py;
+	worldX = (float)wx;
+	worldY = (float)wy;
 }
 
 //copy constructor
@@ -38,6 +42,7 @@ Point::Point(const Point& other) {
 	coordinateY = other.coordinateY;
 	worldX = other.worldX;
 	worldY = other.worldY;
+	classification = other.classification;
 }
 
 //move constructor
@@ -58,22 +63,22 @@ Point::Point(Point&& other) {
 //creates and returns a new Point object with the same values as
 //another Point that gets passed as an argument
 Point Point::operator=(const Point& other) {
-	return Point(other.coordinateX, other.coordinateY);
+	return Point(other.coordinateX, other.coordinateY, other.worldX, other.worldY);
 }
 
 //move assignment
 //creates and returns a new Point object by taking values from the
 //Point that gets passed as an argument.
 Point Point::operator=(Point&& other) {
-	float x = other.coordinateX;
-	float y = other.coordinateY;
+	float px = other.coordinateX;
+	float py = other.coordinateY;
 	float wx = other.worldX;
 	float wy = other.worldY;
 	other.coordinateX = 0;
 	other.coordinateY = 0;
 	other.worldX = 0;
 	other.worldY = 0;
-	return Point(x, y);
+	return Point(px, py, wx, wy);
 }
 
 float Point::getCoordinateX() {
@@ -92,16 +97,16 @@ float Point::getWorldY() {
 	return this->worldY;
 }
 
-void Point::setX(float newX, float initialOffset, float offset, int planeIndex) {
+void Point::setCoordX(float newX) {
 	coordinateX = newX;
-	worldX = coordinateX + initialOffset + (offset * planeIndex);
-	std::cout << "Point's X value set to " << coordinateX << std::endl;
+	//worldX = coordinateX + initialOffset + (offset * planeIndex);
+	//std::cout << "Point's X value set to " << coordinateX << std::endl;
 }
 
-void Point::setY(float newY, float initialOffset, float offset, int planeIndex) {
+void Point::setCoordY(float newY) {
 	coordinateY = newY;
-	worldY = newY + initialOffset;
-	std::cout << "Point's Y value set to " << coordinateY << std::endl;
+	//worldY = newY + initialOffset;
+	//std::cout << "Point's Y value set to " << coordinateY << std::endl;
 }
 
 Point& Point::getPoint() {
@@ -110,4 +115,35 @@ Point& Point::getPoint() {
 
 void Point::printPt() {
 	std::cout << "(" << this->worldX << ", " << this->worldY << ")" << std::endl;
+}
+
+//setter for classification instantiates classification from string
+void Point::setClassification(std::string title) {
+	classification = Classification(title);
+}
+
+//setter for classification instantiates classification from string and 3-float array to set color
+void Point::setClassification(std::string title, float* color) {
+	classification = Classification(title, color[0], color[1], color[2]);
+}
+
+//setter for classification copies given classification to this
+void Point::setClassification(Classification givenClassification) {
+	classification = givenClassification;
+}
+
+//getter for classification
+Classification Point::getClassification() {
+	return classification;
+}
+
+//wrapper method for setting color which is tied to classification
+void Point::setClassColor(float* rgb) {
+	this->classification.setColor(rgb[0], rgb[1], rgb[2]);
+}
+
+//method calculates this point world position
+void Point::calcWorldPosition(float relativeMaxWidth, float relativeMaxHeight, float planeSize, float planeOffset, int planePosition) {
+	worldX = ((coordinateX * planeSize) / relativeMaxWidth) + (planePosition * planeSize) + planeOffset;
+	worldY = ((coordinateY * planeSize) / relativeMaxHeight) + planeOffset;
 }

@@ -119,12 +119,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Classification.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MD_Graph.cpp" />
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="Point.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Classification.h" />
     <ClInclude Include="MD_Graph.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="Point.h" />

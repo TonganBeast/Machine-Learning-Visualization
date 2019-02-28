@@ -1,2 +1,5 @@
-﻿  Main.cpp
-  Visualization.vcxproj -> C:\Users\Matt\Desktop\SimpleCalculator\Machine-Learning-Visualization\Visualization\Debug\Visualization.exe
+﻿  MD_Graph.cpp
+d:\utility files\machine-learning-visualization\visualization\visualization\md_graph.cpp(237): warning C4018: '<': signed/unsigned mismatch
+d:\utility files\machine-learning-visualization\visualization\visualization\md_graph.cpp(409): warning C4018: '<': signed/unsigned mismatch
+d:\utility files\machine-learning-visualization\visualization\visualization\md_graph.cpp(444): warning C4018: '<': signed/unsigned mismatch
+  Visualization.vcxproj -> D:\Utility Files\Machine-Learning-Visualization\Visualization\Visualization\Debug\Visualization.exe
