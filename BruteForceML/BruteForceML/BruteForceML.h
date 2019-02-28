@@ -10,19 +10,22 @@ with the best (highest) purity level.
 #include <string>
 #include <vector> 
 #include <ctime>
+#include <fstream>
+#include <sstream>
+#include <iterator>
 
 using namespace std;
 
 struct DataClass
 {
 	string className;
-	vector<vector<double>> classDataset;
+	vector<vector<float>> classDataset;
 };
 
-struct Point
+struct MLPoint
 {
-	double x;
-	double y;
+	float x;
+	float y;
 };
 
 struct ClassSquareLimits
@@ -31,7 +34,7 @@ struct ClassSquareLimits
 
 	// Points of dominant square: Top Left, Top Right,
 	// Bottom Right, Bottom Left.
-	Point pointTL, pointTR, pointBR, pointBL;
+	MLPoint pointTL, pointTR, pointBR, pointBL;
 };
 
 struct DominantSquare
@@ -39,26 +42,32 @@ struct DominantSquare
 	string dominantClass;
 	double purity;
 	int classPointsInSquare;
+	int totalPointsInSquare;
 
 	// Points of dominant square: Top Left, Top Right,
 	// Bottom Right, Bottom Left.
-	Point pointTL, pointTR, pointBR, pointBL;
+	MLPoint pointTL, pointTR, pointBR, pointBL;
 };
 
-struct Plane
+struct MLPlane
 {
 	// These are indexes to the attribute in
-	// classDataset of DataClass struct.
+	// classDataset of DataClass struct. (DIMENSIONS OF PLANE)
 	int attribute1;	// X
 	int attribute2;	// Y
 	vector<DominantSquare> domSquares;
 
+	// Basically, all the points in the plane.
+	vector<float> xCoordinates;	// All the x coordinates in plane.
+	vector<float> yCoordinates;	// All the y coordinates in plane.
+
+	// Only used to find dominant squares.
 	vector<ClassSquareLimits> limitsOfClasses;
 };
 
 struct PlaneSet
 {
-	vector<Plane> planes;
+	vector<MLPlane> planes;
 };
 
 class BruteForce
@@ -67,16 +76,19 @@ public:
 	// --------------------------------------
 	// ------------ CONSTRUCTORS ------------
 	// --------------------------------------
-	BruteForce(vector<DataClass> classesSet);
+	//BruteForce(vector<DataClass> classesSet);
+	BruteForce(string filename);
 
 	// --------------------------------------
 	// -------------- METHODS ---------------
 	// --------------------------------------
-	vector<Plane> run();
+	void initializeBruteForce();
+	vector<MLPlane> run();
 
 private:
+	string filename;				// Name of file with data;
 	vector<DataClass> classes;		// The organized class data of all classes.
-	vector<Plane> dominantPlanes;	// The dominant planes produced by Brute Force.
+	vector<MLPlane> dominantPlanes;	// The dominant planes produced by Brute Force.
 	vector<PlaneSet> setOfPlanes;	// Sets of planes (will be limited to 3 or 4).
 	vector<DominantSquare> dominantSquares;
 	int numOfAttributes;
@@ -85,6 +97,7 @@ private:
 	// --------------------------------------
 	// -------------- METHODS ---------------
 	// --------------------------------------
+	void readFile();
 	// Get the number of attributes.
 	void getNumOfAttributes();
 
@@ -98,8 +111,12 @@ private:
 	void setDomSquareLimits();
 
 	// Find the dominant squares in a Plane.
-	void findDominantSquares(Plane pln);
+	void findDominantSquares(MLPlane pln);
 
 	// Find a dominant set of planes with the best dominant squares.
 	void findDominantPlanes();
+
+	// Generates Random dominant squares for TESTING!!!
+	// FOR MATT/LENI INTEGRATION WITH VIS.
+	vector<MLPlane> GenerateDummyDominantPlanes();
 };
