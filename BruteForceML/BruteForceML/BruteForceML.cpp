@@ -126,6 +126,7 @@ vector<MLPlane> BruteForce::run()
 	// for each class in each plane.
 	setDomSquareLimits();
 
+	/*
 	// DEBUGGING.
 	for (int i = 0; i < setOfPlanes.size(); i++)
 	{
@@ -138,7 +139,8 @@ vector<MLPlane> BruteForce::run()
 			MLPlane pln = planesSt.planes[j];
 			cout << "Plane " << j << ":\n";
 			cout << "Attribute 1 = " << pln.attribute1 << endl;
-			cout << "Attribute 2 = " << pln.attribute2 << "\n\n";
+			cout << "Attribute 2 = " << pln.attribute2 << endl;
+			cout << "Points In Plane: " << pln.pointsInPlane.size() << "\n\n";
 
 			cout << "DomSquare Limits: " << pln.limitsOfClasses.size() << "\n\n";
 			
@@ -152,17 +154,31 @@ vector<MLPlane> BruteForce::run()
 				cout << "[" << limits.pointBR.x << " , " << limits.pointBR.y << "]  ";
 				cout << "[" << limits.pointBL.x << " , " << limits.pointBL.y << "]  \n";
 			}
-			cout << "\n*****************\n\n";
-			cout << "x\ty" << endl;
-			for (int i = 0; i < pln.xCoordinates.size() && i < pln.yCoordinates.size(); i++)
-			{
-				cout << pln.xCoordinates[i] << "\t" << pln.yCoordinates[i] << endl;
-			}
+			//cout << "\n*****************\n\n";
+			//cout << "x\ty" << endl;
+			//for (int i = 0; i < pln.xCoordinates.size() && i < pln.yCoordinates.size(); i++)
+			//{
+			//	cout << pln.xCoordinates[i] << "\t" << pln.yCoordinates[i] << endl;
+			//}
 			cout << "\n*****************\n\n";
 		}
 		cout << "****************************************************\n\n";
 	}
+	*/
+	for (int i = 0; i < setOfPlanes.size(); i++)
+	{
+		cout << "PLANE SET: " << i << endl;
+		for (int j = 0; j < setOfPlanes[i].planes.size(); j++)
+		{
+			cout << "Plane: " << j << endl;
+			findDominantSquares(setOfPlanes[i].planes[j]);
+			cout << "----------------------------------------------\n";
+		}
+		cout << "****************************************************\n\n";
+	}
 
+
+	/*
 	// *********************************************
 	// DEBUGGING FOR VISUALIZATION FOR INTEGRATION (DELETE LATER)
 	// *********************************************
@@ -174,22 +190,32 @@ vector<MLPlane> BruteForce::run()
 		cout << "Plane: " << i << endl;
 		cout << "******************************\n";
 		MLPlane dumPlane = dummyPlanes[i];
+
+		cout << "Number of CLasses: " << dumPlane.allClassNames.size() << endl;
+		for (int cN = 0; cN < dumPlane.allClassNames.size(); cN++)
+			cout << dumPlane.allClassNames[cN] << "\t";
+		cout << endl;
+
 		for (int dS = 0; dS < dumPlane.domSquares.size(); dS++)
 		{
 			cout << "Dominant Square: " << dS << endl;
 			cout << "CLASSNAME: " << dumPlane.domSquares[dS].dominantClass << endl;
-			cout << "[" << dumPlane.domSquares[dS].pointTL.x << " , " << dumPlane.domSquares[dS].pointTL.y << "]  ";
-			cout << "[" << dumPlane.domSquares[dS].pointTR.x << " , " << dumPlane.domSquares[dS].pointTR.y << "]  ";
-			cout << "[" << dumPlane.domSquares[dS].pointBR.x << " , " << dumPlane.domSquares[dS].pointBR.y << "]  ";
-			cout << "[" << dumPlane.domSquares[dS].pointBL.x << " , " << dumPlane.domSquares[dS].pointBL.y << "]  \n";
+			cout << "Top Left:  [" << dumPlane.domSquares[dS].pointTL.x << " , " << dumPlane.domSquares[dS].pointTL.y << "]\t";
+			cout << "Top Right: [" << dumPlane.domSquares[dS].pointTR.x << " , " << dumPlane.domSquares[dS].pointTR.y << "]\n";
+			cout << "Bot Right: [" << dumPlane.domSquares[dS].pointBR.x << " , " << dumPlane.domSquares[dS].pointBR.y << "]\t";
+			cout << "Bot Left:  [" << dumPlane.domSquares[dS].pointBL.x << " , " << dumPlane.domSquares[dS].pointBL.y << "]\n";
+
+			cout << "\nPURITY: " << dumPlane.domSquares[dS].purity << "\t";
+			cout << "Class Points In Square: " << dumPlane.domSquares[dS].classPointsInSquare << "\t";
+			cout << "Total Points In Square: " << dumPlane.domSquares[dS].totalPointsInSquare << endl;
 			cout << "******************************\n";
 		}
 		cout << "\n*****************\n\n";
 	}
 	return dummyPlanes;
 	// *********************************************
-
-	//return dominantPlanes; // THIS IS THE ACTUAL RETURN VALUE DO NOT DELETE!!
+	*/
+	return dominantPlanes; // THIS IS THE ACTUAL RETURN VALUE DO NOT DELETE!!
 }
 
 // ********************************************************************************
@@ -269,6 +295,8 @@ void BruteForce::assignPlanes()
 			// Loop through all the classes.
 			for (int c = 0; c < classes.size(); c++)
 			{
+				// Add the class name to the list of classnames for the plane.
+				currPlane.allClassNames.push_back(classes[c].className);
 
 				DataClass tempClass = classes[c];
 				for (int cD = 0; cD < tempClass.classDataset.size(); cD++)
@@ -277,6 +305,13 @@ void BruteForce::assignPlanes()
 					vector<float> data = tempClass.classDataset[cD];
 					currPlane.xCoordinates.push_back(data[currPlane.attribute1]);
 					currPlane.yCoordinates.push_back(data[currPlane.attribute2]);
+
+					// Make a point as well with combined x,y values.
+					MLPoint point;
+					point.className = tempClass.className;
+					point.x = data[currPlane.attribute1];
+					point.y = data[currPlane.attribute2];
+					currPlane.pointsInPlane.push_back(point); // Store the point in plane.
 				}
 			}
 
@@ -324,6 +359,8 @@ void BruteForce::assignPlanes()
 			// Loop through all the classes.
 			for (int c = 0; c < classes.size(); c++)
 			{
+				// Add the class name to the list of classnames for the plane.
+				currPlane.allClassNames.push_back(classes[c].className);
 
 				DataClass tempClass = classes[c];
 				for (int cD = 0; cD < tempClass.classDataset.size(); cD++)
@@ -332,6 +369,13 @@ void BruteForce::assignPlanes()
 					vector<float> data = tempClass.classDataset[cD];
 					currPlane.xCoordinates.push_back(data[currPlane.attribute1]);
 					currPlane.yCoordinates.push_back(data[currPlane.attribute2]);
+
+					// Make a point as well with combined x,y values.
+					MLPoint point;
+					point.className = tempClass.className;
+					point.x = data[currPlane.attribute1];
+					point.y = data[currPlane.attribute2];
+					currPlane.pointsInPlane.push_back(point); // Store the point in plane.
 				}
 			}
 
@@ -399,6 +443,12 @@ void BruteForce::setDomSquareLimits()
 				bL.x = xMin;	// Bottom Left Corner.
 				bL.y = yMin;
 
+				// Set classname for all coordinate points.
+				tL.className = classData.className;
+				tR.className = classData.className;
+				bR.className = classData.className;
+				bL.className = classData.className;
+
 				// Assign coordinates to classLimits.
 				classLimits.pointTL = tL;
 				classLimits.pointTR = tR;
@@ -414,11 +464,121 @@ void BruteForce::setDomSquareLimits()
 
 // ********************************************************************************
 // ********************************************************************************
+void BruteForce::calculatePurity(DominantSquare &box, MLPlane plane)
+{
+	int count = 0;
+	int countDom = 0;
+
+	float xMin = box.pointBL.x;
+	float xMax = box.pointBR.x;
+	float yMin = box.pointBL.y;
+	float yMax = box.pointTL.y;
+
+	// Calculate total points in dominant square and points from class in dominant square.
+	for (int p = 0; p < plane.pointsInPlane.size(); p++)
+	{
+		MLPoint tempPoint = plane.pointsInPlane[p];
+		float x = tempPoint.x;
+		float y = tempPoint.y;
+		if (x >= xMin && x <= xMax && y >= yMin && y <= yMax)
+		{
+			count++; // box.totalPointsInSquare++;
+			if (tempPoint.className.compare(box.dominantClass) == 0)
+				countDom++; // box.classPointsInSquare++;
+		}
+	}
+
+	box.totalPointsInSquare = count;
+	box.classPointsInSquare = countDom;
+
+	// Calculate dominant square purity.
+	if (box.totalPointsInSquare > 0)
+		box.purity = 100 * (box.classPointsInSquare / (double)box.totalPointsInSquare);
+	cout << "PURITY: " << box.purity << "\n\n";
+	/*
+	for (int i = 0; i < plane.pointsInPlane.size(); i++)
+	{
+		if (box.pointBL.x < plane.xCoordinates[i] && plane.xCoordinates[i] < box.pointBR.x
+			&& box.pointBL.y < plane.yCoordinates[i] && plane.yCoordinates[i] < box.pointTR.y)
+		{
+			count++;
+			if (plane.pointsInPlane[i].className.compare(box.dominantClass))
+			{
+				countDom++;
+			}
+		}
+		box.totalPointsInSquare = count;
+		box.classPointsInSquare = countDom;
+		box.purity = (box.classPointsInSquare / (double) box.totalPointsInSquare) * 100;
+	}
+	*/
+}
+
+// ********************************************************************************
+// ********************************************************************************
 // Find the dominant squares in a Plane.
 void BruteForce::findDominantSquares(MLPlane pln)
 {
+	for (int i = 0; i < pln.limitsOfClasses.size(); i++)
+	{
+		DominantSquare box;
+		box.pointTL = pln.limitsOfClasses[i].pointTL;
+		box.pointTR = pln.limitsOfClasses[i].pointTR;
+		box.pointBR = pln.limitsOfClasses[i].pointBR;
+		box.pointBL = pln.limitsOfClasses[i].pointBL;
 
-}
+		box.dominantClass = pln.limitsOfClasses[i].className;
+
+		int count = 0;
+		calculatePurity(box, pln);
+
+		while (box.purity < 80 && box.classPointsInSquare > 0)
+		{
+			cout << box.purity << endl;
+			count = count % 4;
+			switch (count)
+			{
+				//shrink the DomSq left
+			case 0:
+				box.pointTL.x = (box.pointTR.x - box.pointTL.x) / 10 + box.pointTL.x;
+				box.pointBL.x = (box.pointBR.x - box.pointBL.x) / 10 + box.pointBL.x;
+				count++;
+				calculatePurity(box, pln);
+				break;
+				//shrink the DomSq down
+			case 1:
+				box.pointTL.y = (box.pointBL.y - box.pointTL.y) / 10 + box.pointTL.y;
+				box.pointTR.y = (box.pointBR.y - box.pointTR.y) / 10 + box.pointTR.y;
+				count++;
+				calculatePurity(box, pln);
+				break;
+				//shrink the DomSq right
+			case 2:
+				box.pointTR.x = (box.pointTL.x - box.pointTR.x) / 10 + box.pointTR.x;
+				box.pointBR.x = (box.pointBL.x - box.pointBR.x) / 10 + box.pointBR.x;
+				count++;
+				calculatePurity(box, pln);
+				break;
+				//shrink the DomSq up
+			case 3:
+				box.pointTL.y = (box.pointBL.y - box.pointTL.y) / 10 + box.pointTL.y;
+				box.pointTR.y = (box.pointBR.y - box.pointTR.y) / 10 + box.pointTR.y;
+				count++;
+				calculatePurity(box, pln);
+				break;
+			}//end switch
+			cout << "Class Points In Square: " << box.classPointsInSquare << "\t\t";
+			cout << "Total Points In Square: " << box.totalPointsInSquare << "\t\t";
+			cout << "Total Points In Plane: " << pln.pointsInPlane.size() << endl;
+			
+			cout << "Top Left:  [" << box.pointTL.x << " , " << box.pointTL.y << "]\t\t";
+			cout << "Top Right: [" << box.pointTR.x << " , " << box.pointTR.y << "]\n";
+			cout << "Bot Left:  [" << box.pointBL.x << " , " << box.pointBL.y << "]\t\t";
+			cout << "Bot Right: [" << box.pointBR.x << " , " << box.pointBR.y << "]\n\n";
+			
+		}//end while
+	}//end for
+}//end function
 
 // ********************************************************************************
 // ********************************************************************************
@@ -465,7 +625,7 @@ vector<MLPlane> BruteForce::GenerateDummyDominantPlanes()
 			while (yMax <= yMin)
 				yMax = yMinLim + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (yMaxLim - yMinLim)));
 
-			// Make Dominant square points.
+			// Make Dominant square coordinate points.
 			MLPoint tL, tR, bR, bL;
 			tL.x = xMin;	// Top Left Corner.
 			tL.y = yMax;
@@ -476,11 +636,35 @@ vector<MLPlane> BruteForce::GenerateDummyDominantPlanes()
 			bL.x = xMin;	// Bottom Left Corner.
 			bL.y = yMin;
 
+			// Set classname for all coordinate points.
+			tL.className = squLimits.className;
+			tR.className = squLimits.className;
+			bR.className = squLimits.className;
+			bL.className = squLimits.className;
+
 			// Set them in Dominant Square.
 			domSquare.pointTL = tL;
 			domSquare.pointTR = tR;
 			domSquare.pointBR = bR;
 			domSquare.pointBL = bL;
+
+			// Calculate total points in dominant square and points from class in dominant square.
+			for (int p = 0; p < pln.pointsInPlane.size(); p++)
+			{
+				MLPoint tempPoint = pln.pointsInPlane[p];
+				int x = tempPoint.x;
+				int y = tempPoint.y;
+				if (x >= xMin && x <= xMax && y >= yMin && y <= yMax)
+				{
+					domSquare.totalPointsInSquare++;
+					if (tempPoint.className.compare(domSquare.dominantClass) == 0)
+						domSquare.classPointsInSquare++;
+				}
+			}
+
+			// Calculate dominant square purity.
+			if(domSquare.totalPointsInSquare > 0)
+				domSquare.purity = domSquare.classPointsInSquare / (double)domSquare.totalPointsInSquare;
 
 			// Add dominant square to Plane's dominant squares vector.
 			pln.domSquares.push_back(domSquare);
