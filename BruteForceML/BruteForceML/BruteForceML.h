@@ -24,6 +24,7 @@ struct DataClass
 
 struct MLPoint
 {
+	string className;
 	float x;
 	float y;
 };
@@ -40,9 +41,9 @@ struct ClassSquareLimits
 struct DominantSquare
 {
 	string dominantClass;
-	double purity;
-	int classPointsInSquare;
-	int totalPointsInSquare;
+	double purity = 0;
+	int classPointsInSquare = 0;
+	int totalPointsInSquare = 0;
 
 	// Points of dominant square: Top Left, Top Right,
 	// Bottom Right, Bottom Left.
@@ -60,6 +61,8 @@ struct MLPlane
 	// Basically, all the points in the plane.
 	vector<float> xCoordinates;	// All the x coordinates in plane.
 	vector<float> yCoordinates;	// All the y coordinates in plane.
+	vector<MLPoint> pointsInPlane; // The combined x,y coordinates.
+	vector<string> allClassNames;
 
 	// Only used to find dominant squares.
 	vector<ClassSquareLimits> limitsOfClasses;
@@ -109,6 +112,8 @@ private:
 
 	// Determine the limits of dominant squares.
 	void setDomSquareLimits();
+
+	void calculatePurity(DominantSquare &box, MLPlane plane);
 
 	// Find the dominant squares in a Plane.
 	void findDominantSquares(MLPlane pln);
