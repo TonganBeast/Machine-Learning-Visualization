@@ -85,7 +85,6 @@ public:
 	// --------------------------------------
 	// -------------- METHODS ---------------
 	// --------------------------------------
-	void initializeBruteForce();
 	vector<MLPlane> run();
 
 private:
@@ -100,7 +99,9 @@ private:
 	// --------------------------------------
 	// -------------- METHODS ---------------
 	// --------------------------------------
+	// Read the file and initialize classes vector.
 	void readFile();
+
 	// Get the number of attributes.
 	void getNumOfAttributes();
 
@@ -120,6 +121,38 @@ private:
 
 	// Find a dominant set of planes with the best dominant squares.
 	void findDominantPlanes();
+
+	// *****************************************************
+	// ************** GENETIC ALGORITHM PART ***************
+	// *****************************************************
+	// The main function of the Genetic Algorithm.
+	void geneticAlgorithm();
+
+	// Generates a population of dominant squares within the limits of the squareLimits classname.
+	vector<DominantSquare> generateRandomDominantSquares(int numOfSquares, ClassSquareLimits squareLimits);
+
+	// Calculates the purity of the population of dominant squares.
+	void fitness(vector<DominantSquare> &domSquares, MLPlane plane);
+
+	// Returns the average purity of the whole population of dominant squares.
+	int gradeDominantSquares(vector<DominantSquare> &domSquares, MLPlane plane);
+
+	// Sorts the population (highest purity first, lowest purity last).
+	void sortTheDomSquarePop(vector<DominantSquare> &domSquares);
+
+	// Mutate one of the retained squares. (Can mutate left/right/top/bottom sides.)
+	void mutateRetainedSquare(DominantSquare &retainedSquare);
+
+	// Evolves the dominant squares (select, mutate, crossover).
+	vector<DominantSquare> evolveSquares(vector<DominantSquare> &domSquares, int xMin, int xMax, int yMin, int yMax, float retain = 0.2, float select = 0.05, float mutate = 0.01);
+	
+	// ************ QUICKSORT IMPLEMENTATION ************
+	// NOTE: L and R are INCLUSIVE!!
+	// Example Initial Call: quicksort(domSquares, 0, domSquares.size()-1);
+	void quicksort(vector<DominantSquare> &domSquares, int L, int R, bool reverse);
+	void swap(vector<DominantSquare> &domSquare, int x, int y);
+	// *****************************************************
+	// *****************************************************
 
 	// Generates Random dominant squares for TESTING!!!
 	// FOR MATT/LENI INTEGRATION WITH VIS.

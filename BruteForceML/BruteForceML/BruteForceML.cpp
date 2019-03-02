@@ -16,20 +16,13 @@ with the best (highest) purity level.
 //BruteForce::BruteForce(vector<DataClass> classesSet) : classes(classesSet){}
 BruteForce::BruteForce(string nameOfFile) : filename(nameOfFile)
 {
-	initializeBruteForce();
+	readFile();
 }
 
 
 // --------------------------------------
 // -------------- METHODS ---------------
 // --------------------------------------
-void BruteForce::initializeBruteForce()
-{
-	readFile();
-}
-
-// ********************************************************************************
-// ********************************************************************************
 void BruteForce::readFile()
 {
 	// Read from file.
@@ -126,6 +119,10 @@ vector<MLPlane> BruteForce::run()
 	// for each class in each plane.
 	setDomSquareLimits();
 
+	// Initiate the genetic algorithm to find dominant squares
+	// of each class in each plane.
+	geneticAlgorithm();
+
 	/*
 	// DEBUGGING.
 	for (int i = 0; i < setOfPlanes.size(); i++)
@@ -165,6 +162,11 @@ vector<MLPlane> BruteForce::run()
 		cout << "****************************************************\n\n";
 	}
 	*/
+
+	/*
+	// *********************************************
+	// DEBUGGING FOR DominantSquare (Wesley)
+	// *********************************************
 	for (int i = 0; i < setOfPlanes.size(); i++)
 	{
 		cout << "PLANE SET: " << i << endl;
@@ -176,13 +178,15 @@ vector<MLPlane> BruteForce::run()
 		}
 		cout << "****************************************************\n\n";
 	}
+	*/
 
 
-	/*
-	// *********************************************
-	// DEBUGGING FOR VISUALIZATION FOR INTEGRATION (DELETE LATER)
-	// *********************************************
+	
+	// ******************************************************************************
+	// DEBUGGING FOR VISUALIZATION FOR INTEGRATION (DELETE LATER) (MATT/LENI PART)
+	// ******************************************************************************
 	vector<MLPlane> dummyPlanes = GenerateDummyDominantPlanes();
+	/*
 	cout << "\n\n\n\n\n\n";
 	cout << "DUMMY PLANES\n\n";
 	for (int i = 0; i < dummyPlanes.size(); i++)
@@ -212,10 +216,11 @@ vector<MLPlane> BruteForce::run()
 		}
 		cout << "\n*****************\n\n";
 	}
-	return dummyPlanes;
-	// *********************************************
 	*/
-	return dominantPlanes; // THIS IS THE ACTUAL RETURN VALUE DO NOT DELETE!!
+	return dummyPlanes;
+	// ******************************************************************************
+	
+	//return dominantPlanes; // THIS IS THE ACTUAL RETURN VALUE DO NOT DELETE!!
 }
 
 // ********************************************************************************
@@ -466,13 +471,17 @@ void BruteForce::setDomSquareLimits()
 // ********************************************************************************
 void BruteForce::calculatePurity(DominantSquare &box, MLPlane plane)
 {
-	int count = 0;
-	int countDom = 0;
+	//int count = 0;
+	//int countDom = 0;
 
 	float xMin = box.pointBL.x;
 	float xMax = box.pointBR.x;
 	float yMin = box.pointBL.y;
 	float yMax = box.pointTL.y;
+
+	// Reset the totalPointsInSquare and classPointsInSquare of the dominant square.
+	box.totalPointsInSquare = 0;
+	box.classPointsInSquare = 0;
 
 	// Calculate total points in dominant square and points from class in dominant square.
 	for (int p = 0; p < plane.pointsInPlane.size(); p++)
@@ -482,36 +491,24 @@ void BruteForce::calculatePurity(DominantSquare &box, MLPlane plane)
 		float y = tempPoint.y;
 		if (x >= xMin && x <= xMax && y >= yMin && y <= yMax)
 		{
-			count++; // box.totalPointsInSquare++;
+			//count++;
+			box.totalPointsInSquare++;
 			if (tempPoint.className.compare(box.dominantClass) == 0)
-				countDom++; // box.classPointsInSquare++;
+			{
+				//countDom++;
+				box.classPointsInSquare++;
+			}
 		}
 	}
 
-	box.totalPointsInSquare = count;
-	box.classPointsInSquare = countDom;
+	//box.totalPointsInSquare = count;
+	//box.classPointsInSquare = countDom;
 
 	// Calculate dominant square purity.
 	if (box.totalPointsInSquare > 0)
 		box.purity = 100 * (box.classPointsInSquare / (double)box.totalPointsInSquare);
-	cout << "PURITY: " << box.purity << "\n\n";
-	/*
-	for (int i = 0; i < plane.pointsInPlane.size(); i++)
-	{
-		if (box.pointBL.x < plane.xCoordinates[i] && plane.xCoordinates[i] < box.pointBR.x
-			&& box.pointBL.y < plane.yCoordinates[i] && plane.yCoordinates[i] < box.pointTR.y)
-		{
-			count++;
-			if (plane.pointsInPlane[i].className.compare(box.dominantClass))
-			{
-				countDom++;
-			}
-		}
-		box.totalPointsInSquare = count;
-		box.classPointsInSquare = countDom;
-		box.purity = (box.classPointsInSquare / (double) box.totalPointsInSquare) * 100;
-	}
-	*/
+	else
+		box.purity = 0;
 }
 
 // ********************************************************************************
@@ -587,6 +584,375 @@ void BruteForce::findDominantPlanes()
 {
 
 }
+
+
+// ********************************************************************************
+// **************************** GENETIC ALGORITHM PART ****************************
+// ********************************************************************************
+// The main function of the Genetic Algorithm.
+void BruteForce::geneticAlgorithm()
+{
+	vector<DominantSquare> domSquares = generateRandomDominantSquares(100, setOfPlanes[0].planes[0].limitsOfClasses[0]);
+
+	int avgPurity = gradeDominantSquares(domSquares, setOfPlanes[0].planes[0]);
+	cout << "Population Size: " << domSquares.size() << endl;
+	cout << "Average Purity:  " << avgPurity << endl;
+	cout << "Purity Of One:   " << domSquares[0].purity << endl;
+	for (int i = 0; i < domSquares.size(); i++)
+		cout << domSquares[i].purity << " ";
+	cout << "\n\n";
+
+	sortTheDomSquarePop(domSquares);
+	cout << "******************\n";
+	for (int i = 0; i < domSquares.size(); i++)
+	{
+		cout << "Purity: " << domSquares[i].purity << "\t\t";
+		cout << "Class Points In Square: " << domSquares[i].classPointsInSquare << "\t\t";
+		cout << "Total Points In Square: " << domSquares[i].totalPointsInSquare << endl;
+	}
+	cout << "\n\n";
+}
+
+// ********************************************************************************
+// Generates a population of dominant squares within the limits of the squareLimits classname.
+vector<DominantSquare> BruteForce::generateRandomDominantSquares(int numOfSquares, ClassSquareLimits squareLimits)
+{
+	// Dominant Square limits.
+	float xMinLim = squareLimits.pointBL.x;
+	float xMaxLim = squareLimits.pointBR.x;
+	float yMinLim = squareLimits.pointBL.y;
+	float yMaxLim = squareLimits.pointTL.y;
+
+	// Initialize the Dominant Square Population.
+	vector<DominantSquare> domSquares;
+
+	// Generate a random dominant squares.
+	for (int i = 0; i < numOfSquares; i++)
+	{
+		
+		DominantSquare domSquare;
+		domSquare.dominantClass = squareLimits.className;	// Set classname.
+
+		// Generate random x and y min/max points for dominant square.
+		float xMin = xMaxLim + 1;
+		while(xMin >= (xMaxLim - 0.5))
+			xMin = xMinLim + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (xMaxLim - xMinLim)));
+
+		float xMax = xMin - 1;
+		while (xMax <= xMin)
+			xMax = xMinLim + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (xMaxLim - xMinLim)));
+
+		float yMin = yMaxLim + 1;
+		while(yMin >= (yMaxLim - 0.5))
+			yMin = yMinLim + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (yMaxLim - yMinLim)));
+
+		float yMax = yMin - 1;
+		while (yMax <= yMin)
+			yMax = yMinLim + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (yMaxLim - yMinLim)));
+
+		// Make Dominant square coordinate points.
+		MLPoint tL, tR, bR, bL;
+		tL.x = xMin;	// Top Left Corner.
+		tL.y = yMax;
+		tR.x = xMax;	// Top Right Corner.
+		tR.y = yMax;
+		bR.x = xMax;	// Bottom Right Corner.
+		bR.y = yMin;
+		bL.x = xMin;	// Bottom Left Corner.
+		bL.y = yMin;
+
+		// Set classname for all coordinate points.
+		tL.className = squareLimits.className;
+		tR.className = squareLimits.className;
+		bR.className = squareLimits.className;
+		bL.className = squareLimits.className;
+
+		// Set them in Dominant Square.
+		domSquare.pointTL = tL;
+		domSquare.pointTR = tR;
+		domSquare.pointBR = bR;
+		domSquare.pointBL = bL;
+
+		domSquares.push_back(domSquare);
+	}
+
+	return domSquares;
+}
+
+// ********************************************************************************
+// Calculates the purity of the population of dominant squares.
+void BruteForce::fitness(vector<DominantSquare> &domSquares, MLPlane plane)
+{
+	for (int i = 0; i < domSquares.size(); i++)
+		calculatePurity(domSquares[i], plane);
+}
+
+// ********************************************************************************
+// Returns the average purity of the whole population of dominant squares.
+int BruteForce::gradeDominantSquares(vector<DominantSquare> &domSquares, MLPlane plane)
+{
+	// First calculate the fitness of each dominant square in the population.
+	fitness(domSquares, plane);
+
+	double totalPopulationPurity = 0;
+	double averagePopulationPurity;
+
+	// Calcualte the total purity of the population.
+	for (int i = 0; i < domSquares.size(); i++)
+		totalPopulationPurity += domSquares[i].purity;
+
+	// Calculate the average purity for the population as a whole.
+	averagePopulationPurity = totalPopulationPurity / domSquares.size();
+
+	return averagePopulationPurity;
+}
+
+// ********************************************************************************
+// Sorts the population (highest purity first, lowest purity last).
+void BruteForce::sortTheDomSquarePop(vector<DominantSquare> &domSquares)
+{
+	quicksort(domSquares, 0, domSquares.size() - 1, true);
+}
+
+// ********************************************************************************
+// Mutate one of the retained squares. (Can mutate left/right/top/bottom sides.)
+void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare)
+{
+	// Randomly decide either to move or transpose dominant square.
+	// 0 = Transpose (Change side dimensions), 1 = move dominant square.
+	int moveOrTranspose = rand() % 2;
+
+	// Transpose a random side of the dominant square by 1%.
+	if (moveOrTranspose == 0)
+	{
+		// Randomly decide either to shrink or expand.
+		// 0 = shrink, 1 = expand.
+		int shrinkOrExpand = rand() % 2;
+
+		// Decided which side to apply the mutation to.
+		int side = rand() % 4;
+
+		switch (side)
+		{
+			// Left Side.
+		case 0:
+			// Shrink left side inwareds by 1%.
+			if (shrinkOrExpand == 0)
+			{
+				retainedSquare.pointTL.x += (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.01;
+				retainedSquare.pointBL.x += (retainedSquare.pointBR.x - retainedSquare.pointBL.x) * 0.01;
+			}
+			// Expand left side outwards by 1%.
+			else
+			{
+				retainedSquare.pointTL.x -= (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.01;
+				retainedSquare.pointBL.x -= (retainedSquare.pointBR.x - retainedSquare.pointBL.x) * 0.01;
+			}
+			break;
+			// Top Side.
+		case 1:
+			// Shrink top side inwards by 1%.
+			if (shrinkOrExpand == 0)
+			{
+				retainedSquare.pointTL.y -= (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
+				retainedSquare.pointTR.y -= (retainedSquare.pointTR.y - retainedSquare.pointBR.y) * 0.01;
+			}
+			// Expand top side outwards by 1%.
+			else
+			{
+				retainedSquare.pointTL.y += (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
+				retainedSquare.pointTR.y += (retainedSquare.pointTR.y - retainedSquare.pointBR.y) * 0.01;
+			}
+			break;
+			// Right Side.
+		case 2:
+			// Shrink right side inwards by 1%.
+			if (shrinkOrExpand == 0)
+			{
+				retainedSquare.pointTR.x -= (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.01;
+				retainedSquare.pointBR.x -= (retainedSquare.pointBR.x - retainedSquare.pointBL.x) * 0.01;
+			}
+			// Expand right side outwards by 1%.
+			else
+			{
+				retainedSquare.pointTR.x += (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.01;
+				retainedSquare.pointBR.x += (retainedSquare.pointBR.x - retainedSquare.pointBL.x) * 0.01;
+			}
+			break;
+			// Bottom Side.
+		case 3:
+			// Shrink bottom side inwards by 1%.
+			if (shrinkOrExpand == 0)
+			{
+				retainedSquare.pointBL.y += (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
+				retainedSquare.pointBR.y += (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
+			}
+			// Expand bottom side outwards by 1%.
+			else
+			{
+				retainedSquare.pointBL.y -= (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
+				retainedSquare.pointBR.y -= (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
+			}
+			break;
+		}
+	}
+	// Move dominant square by 1% in a random direction.
+	else
+	{
+		// Which direction to move.
+		// 0 = left, 1 = up, 2 = right, 3 = down.
+		int direction = rand() % 4;
+		double difference;
+
+		switch (direction)
+		{
+			// Move Left.
+		case 0:
+			difference = (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.01;
+			retainedSquare.pointTL.x -= difference;
+			retainedSquare.pointBL.x -= difference;
+			retainedSquare.pointTR.x -= difference;
+			retainedSquare.pointBR.x -= difference;
+			break;
+			// Move Up.
+		case 1:
+			difference = (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
+			retainedSquare.pointTL.y += difference;
+			retainedSquare.pointTR.y += difference;
+			retainedSquare.pointBL.y += difference;
+			retainedSquare.pointBR.y += difference;
+			break;
+			// Move Right.
+		case 2:
+			difference = (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.01;
+			retainedSquare.pointTL.x += difference;
+			retainedSquare.pointBL.x += difference;
+			retainedSquare.pointTR.x += difference;
+			retainedSquare.pointBR.x += difference;
+			break;
+			// Move Down.
+		case 3:
+			difference = (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
+			retainedSquare.pointTL.y -= difference;
+			retainedSquare.pointTR.y -= difference;
+			retainedSquare.pointBL.y -= difference;
+			retainedSquare.pointBR.y -= difference;
+			break;
+		}
+	}
+}
+
+// ********************************************************************************
+// Evolves the dominant squares (select, mutate, crossover).
+vector<DominantSquare> BruteForce::evolveSquares(vector<DominantSquare> &domSquares, int xMin, int xMax, int yMin, int yMax, float retain, float select, float mutate)
+{
+	// Sort the dominant squares population (highest fitness first).
+	sortTheDomSquarePop(domSquares);
+
+	// How much of the original population to retain.
+	int retainLength = domSquares.size() * retain;
+	vector<DominantSquare> parents;
+	vector<DominantSquare> retained;
+
+	// Parents are the first two options in the population.
+	parents.push_back(domSquares[0]);
+	parents.push_back(domSquares[1]);
+
+	// Retain some of the population.
+	for (int i = 2; i < retainLength + 2 && i < domSquares.size(); i++)
+		retained.push_back(domSquares[i]);
+
+	// Randomly select some of the remaining population to retain.
+	for (int i = retainLength + 2; i < domSquares.size(); i++)
+	{
+		float randFloat = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+		if(select > randFloat)
+			retained.push_back(domSquares[i]);
+	}
+
+	// Randomly mutate some of the retained population.
+	for (int i = 0; i < retained.size(); i++)
+	{
+		float randFloat = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+		if (mutate > randFloat)
+			mutateRetainedSquare(retained[i]);
+	}
+
+	// Crossover with parents.
+	int desiredLength = domSquares.size() - parents.size() - retained.size();
+
+
+	return parents;
+}
+
+// ********************************************************************************
+// ************ QUICKSORT IMPLEMENTATION ************
+// NOTE: L and R are INCLUSIVE!!
+// Example Initial Call: quicksort(domSquares, 0, domSquares.size()-1);
+void BruteForce::quicksort(vector<DominantSquare> &domSquares, int L, int R, bool reverse)
+{
+	int i, j, mid;
+	double piv;
+	i = L;
+	j = R;
+	mid = L + (R - L) / 2;
+	piv = domSquares[mid].purity;
+
+	while (i<R || j>L)
+	{
+		if (reverse)
+		{
+			while (domSquares[i].purity > piv)
+				i++;
+			while (domSquares[j].purity < piv)
+				j--;
+		}
+		else
+		{
+			while (domSquares[i].purity < piv)
+				i++;
+			while (domSquares[j].purity > piv)
+				j--;
+		}
+
+		if (i <= j)
+		{
+			swap(domSquares, i, j); //error=swap function doesnt take 3 arguments
+			i++;
+			j--;
+		}
+		else
+		{
+			if (i < R)
+				quicksort(domSquares, i, R, reverse);
+			if (j > L)
+				quicksort(domSquares, L, j, reverse);
+			return;
+		}
+	}
+}
+
+// ********************************************************************************
+void BruteForce::swap(vector<DominantSquare> &domSquare, int x, int y)
+{
+	DominantSquare temp = domSquare[x];
+	domSquare[x] = domSquare[y];
+	domSquare[y] = temp;
+}
+// ********************************************************************************
+// ********************************************************************************
+// ********************************************************************************
+
+
+
+
+
+
+
+
+
+
+
 
 // ********************************************************************************
 // ********************************************************************************
