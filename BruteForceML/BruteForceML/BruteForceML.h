@@ -27,6 +27,7 @@ struct MLPoint
 	string className;
 	float x;
 	float y;
+	vector<bool> inDomSquare;
 };
 
 struct ClassSquareLimits
@@ -135,16 +136,19 @@ private:
 	void fitness(vector<DominantSquare> &domSquares, MLPlane plane);
 
 	// Returns the average purity of the whole population of dominant squares.
-	int gradeDominantSquares(vector<DominantSquare> &domSquares, MLPlane plane);
+	float gradeDominantSquares(vector<DominantSquare> &domSquares, MLPlane plane);
 
 	// Sorts the population (highest purity first, lowest purity last).
 	void sortTheDomSquarePop(vector<DominantSquare> &domSquares);
 
 	// Mutate one of the retained squares. (Can mutate left/right/top/bottom sides.)
-	void mutateRetainedSquare(DominantSquare &retainedSquare);
+	void mutateRetainedSquare(DominantSquare &retainedSquare, ClassSquareLimits squareLimits);
+
+	// Crossover from the parent.
+	void crossoverFromParent(DominantSquare &retainedSquare, vector<DominantSquare> parents);
 
 	// Evolves the dominant squares (select, mutate, crossover).
-	vector<DominantSquare> evolveSquares(vector<DominantSquare> &domSquares, int xMin, int xMax, int yMin, int yMax, float retain = 0.2, float select = 0.05, float mutate = 0.01);
+	vector<DominantSquare> evolveSquares(vector<DominantSquare> &domSquares, ClassSquareLimits squareLimits, float retain = 0.2, float select = 0.05, float mutate = 0.5);
 	
 	// ************ QUICKSORT IMPLEMENTATION ************
 	// NOTE: L and R are INCLUSIVE!!

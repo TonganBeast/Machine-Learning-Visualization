@@ -123,100 +123,29 @@ vector<MLPlane> BruteForce::run()
 	// of each class in each plane.
 	geneticAlgorithm();
 
-	/*
 	// DEBUGGING.
-	for (int i = 0; i < setOfPlanes.size(); i++)
+	for (int sP = 0; sP < setOfPlanes.size(); sP++)
 	{
-		cout << "****************************************************\n";
-		cout << "****** Plane Set " << i << endl;
-		cout << "****************************************************\n";
-		PlaneSet planesSt = setOfPlanes[i];
-		for (int j = 0; j < planesSt.planes.size(); j++)
+		cout << "PLANE SET: " << sP << endl;
+		for (int p = 0; p < setOfPlanes[sP].planes.size(); p++)
 		{
-			MLPlane pln = planesSt.planes[j];
-			cout << "Plane " << j << ":\n";
-			cout << "Attribute 1 = " << pln.attribute1 << endl;
-			cout << "Attribute 2 = " << pln.attribute2 << endl;
-			cout << "Points In Plane: " << pln.pointsInPlane.size() << "\n\n";
-
-			cout << "DomSquare Limits: " << pln.limitsOfClasses.size() << "\n\n";
-			
-			for (int i = 0; i < pln.limitsOfClasses.size(); i++)
+			cout << "Plane: " << p << endl;
+			cout << "Number of Dominant Squares: " << setOfPlanes[sP].planes[p].domSquares.size() << endl;
+			cout << "Dom Square Classes: ";
+			for (int dM = 0; dM < setOfPlanes[sP].planes[p].domSquares.size(); dM++)
 			{
-				ClassSquareLimits limits = pln.limitsOfClasses[i];
-				cout << "CLASS: ";
-				cout << limits.className << endl;
-				cout << "[" << limits.pointTL.x << " , " << limits.pointTL.y << "]  ";
-				cout << "[" << limits.pointTR.x << " , " << limits.pointTR.y << "]  ";
-				cout << "[" << limits.pointBR.x << " , " << limits.pointBR.y << "]  ";
-				cout << "[" << limits.pointBL.x << " , " << limits.pointBL.y << "]  \n";
+				cout << setOfPlanes[sP].planes[p].domSquares[dM].dominantClass << "\t\t";
 			}
-			//cout << "\n*****************\n\n";
-			//cout << "x\ty" << endl;
-			//for (int i = 0; i < pln.xCoordinates.size() && i < pln.yCoordinates.size(); i++)
-			//{
-			//	cout << pln.xCoordinates[i] << "\t" << pln.yCoordinates[i] << endl;
-			//}
-			cout << "\n*****************\n\n";
+			cout << "\n\n";
 		}
 		cout << "****************************************************\n\n";
 	}
-	*/
-
-	/*
-	// *********************************************
-	// DEBUGGING FOR DominantSquare (Wesley)
-	// *********************************************
-	for (int i = 0; i < setOfPlanes.size(); i++)
-	{
-		cout << "PLANE SET: " << i << endl;
-		for (int j = 0; j < setOfPlanes[i].planes.size(); j++)
-		{
-			cout << "Plane: " << j << endl;
-			findDominantSquares(setOfPlanes[i].planes[j]);
-			cout << "----------------------------------------------\n";
-		}
-		cout << "****************************************************\n\n";
-	}
-	*/
-
 
 	
 	// ******************************************************************************
 	// DEBUGGING FOR VISUALIZATION FOR INTEGRATION (DELETE LATER) (MATT/LENI PART)
 	// ******************************************************************************
 	vector<MLPlane> dummyPlanes = GenerateDummyDominantPlanes();
-	/*
-	cout << "\n\n\n\n\n\n";
-	cout << "DUMMY PLANES\n\n";
-	for (int i = 0; i < dummyPlanes.size(); i++)
-	{
-		cout << "Plane: " << i << endl;
-		cout << "******************************\n";
-		MLPlane dumPlane = dummyPlanes[i];
-
-		cout << "Number of CLasses: " << dumPlane.allClassNames.size() << endl;
-		for (int cN = 0; cN < dumPlane.allClassNames.size(); cN++)
-			cout << dumPlane.allClassNames[cN] << "\t";
-		cout << endl;
-
-		for (int dS = 0; dS < dumPlane.domSquares.size(); dS++)
-		{
-			cout << "Dominant Square: " << dS << endl;
-			cout << "CLASSNAME: " << dumPlane.domSquares[dS].dominantClass << endl;
-			cout << "Top Left:  [" << dumPlane.domSquares[dS].pointTL.x << " , " << dumPlane.domSquares[dS].pointTL.y << "]\t";
-			cout << "Top Right: [" << dumPlane.domSquares[dS].pointTR.x << " , " << dumPlane.domSquares[dS].pointTR.y << "]\n";
-			cout << "Bot Right: [" << dumPlane.domSquares[dS].pointBR.x << " , " << dumPlane.domSquares[dS].pointBR.y << "]\t";
-			cout << "Bot Left:  [" << dumPlane.domSquares[dS].pointBL.x << " , " << dumPlane.domSquares[dS].pointBL.y << "]\n";
-
-			cout << "\nPURITY: " << dumPlane.domSquares[dS].purity << "\t";
-			cout << "Class Points In Square: " << dumPlane.domSquares[dS].classPointsInSquare << "\t";
-			cout << "Total Points In Square: " << dumPlane.domSquares[dS].totalPointsInSquare << endl;
-			cout << "******************************\n";
-		}
-		cout << "\n*****************\n\n";
-	}
-	*/
 	return dummyPlanes;
 	// ******************************************************************************
 	
@@ -509,6 +438,17 @@ void BruteForce::calculatePurity(DominantSquare &box, MLPlane plane)
 		box.purity = 100 * (box.classPointsInSquare / (double)box.totalPointsInSquare);
 	else
 		box.purity = 0;
+
+	// Normalize purity based on how useful it is.
+	for (int i = 0; i < classes.size(); i++)
+	{
+		if (box.dominantClass.compare(classes[i].className))
+		{
+			if (box.classPointsInSquare < (classes[i].classDataset.size() * 0.85))
+				box.purity = box.purity * box.classPointsInSquare / (double)classes[i].classDataset.size();
+			break;
+		}
+	}
 }
 
 // ********************************************************************************
@@ -592,25 +532,49 @@ void BruteForce::findDominantPlanes()
 // The main function of the Genetic Algorithm.
 void BruteForce::geneticAlgorithm()
 {
-	vector<DominantSquare> domSquares = generateRandomDominantSquares(100, setOfPlanes[0].planes[0].limitsOfClasses[0]);
-
-	int avgPurity = gradeDominantSquares(domSquares, setOfPlanes[0].planes[0]);
-	cout << "Population Size: " << domSquares.size() << endl;
-	cout << "Average Purity:  " << avgPurity << endl;
-	cout << "Purity Of One:   " << domSquares[0].purity << endl;
-	for (int i = 0; i < domSquares.size(); i++)
-		cout << domSquares[i].purity << " ";
-	cout << "\n\n";
-
-	sortTheDomSquarePop(domSquares);
-	cout << "******************\n";
-	for (int i = 0; i < domSquares.size(); i++)
+	for (int sP = 0; sP < setOfPlanes.size(); sP++)
 	{
-		cout << "Purity: " << domSquares[i].purity << "\t\t";
-		cout << "Class Points In Square: " << domSquares[i].classPointsInSquare << "\t\t";
-		cout << "Total Points In Square: " << domSquares[i].totalPointsInSquare << endl;
+		for (int p = 0; p < setOfPlanes[sP].planes.size(); p++)
+		{
+			for (int lim = 0; lim < setOfPlanes[sP].planes[p].limitsOfClasses.size(); lim++)
+			{
+				// Create the population of dominant squares based on the limits of classes.
+				vector<DominantSquare> domSquares = generateRandomDominantSquares(25, setOfPlanes[sP].planes[p].limitsOfClasses[lim]);
+				cout << "Population Size: " << domSquares.size() << endl;
+
+				// Grade the original population and get its average purity.
+				float avgPurity = gradeDominantSquares(domSquares, setOfPlanes[0].planes[0]);
+
+				// Set the generations counter;
+				int generations = 0;
+
+				// Evolve the population until the average purity is 90 or greater.
+				while (avgPurity < 90 && generations < 500)
+				{
+					domSquares = evolveSquares(domSquares, setOfPlanes[0].planes[0].limitsOfClasses[0]);
+					avgPurity = gradeDominantSquares(domSquares, setOfPlanes[0].planes[0]);
+					generations++;
+				}
+
+				// Save the topmost pure dominant square into the list of dominant squares for the plane.
+				sortTheDomSquarePop(domSquares);
+				setOfPlanes[sP].planes[p].domSquares.push_back(domSquares[0]);
+
+				// DEBUGGING
+				/*
+				cout << "Average Purity: " << avgPurity << endl;
+				for (int i = 0; i < domSquares.size(); i++)
+				{
+					cout << "Purity: " << domSquares[i].purity << "\t\t";
+					cout << "Class Points In Square: " << domSquares[i].classPointsInSquare << "\t\t";
+					cout << "Total Points In Square: " << domSquares[i].totalPointsInSquare << endl;
+				}
+				cout << "\n*************************************************************\n\n";
+				system("pause");
+				*/
+			}
+		}
 	}
-	cout << "\n\n";
 }
 
 // ********************************************************************************
@@ -689,7 +653,7 @@ void BruteForce::fitness(vector<DominantSquare> &domSquares, MLPlane plane)
 
 // ********************************************************************************
 // Returns the average purity of the whole population of dominant squares.
-int BruteForce::gradeDominantSquares(vector<DominantSquare> &domSquares, MLPlane plane)
+float BruteForce::gradeDominantSquares(vector<DominantSquare> &domSquares, MLPlane plane)
 {
 	// First calculate the fitness of each dominant square in the population.
 	fitness(domSquares, plane);
@@ -716,87 +680,67 @@ void BruteForce::sortTheDomSquarePop(vector<DominantSquare> &domSquares)
 
 // ********************************************************************************
 // Mutate one of the retained squares. (Can mutate left/right/top/bottom sides.)
-void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare)
+void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare, ClassSquareLimits squareLimits)
 {
 	// Randomly decide either to move or transpose dominant square.
 	// 0 = Transpose (Change side dimensions), 1 = move dominant square.
 	int moveOrTranspose = rand() % 2;
 
-	// Transpose a random side of the dominant square by 1%.
+	// Transpose a random side of the dominant square by 10%.
 	if (moveOrTranspose == 0)
 	{
-		// Randomly decide either to shrink or expand.
-		// 0 = shrink, 1 = expand.
-		int shrinkOrExpand = rand() % 2;
+		// Dominant Square limits.
+		float xMinLim = squareLimits.pointBL.x;
+		float xMaxLim = squareLimits.pointBR.x;
+		float yMinLim = squareLimits.pointBL.y;
+		float yMaxLim = squareLimits.pointTL.y;
 
-		// Decided which side to apply the mutation to.
-		int side = rand() % 4;
+		// Randomly generate a new poinnt within the limits.
+		float newX = xMinLim + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (xMaxLim - xMinLim)));
+		float newY = yMinLim + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (yMaxLim - yMinLim)));
 
-		switch (side)
+		// Calculate how close the new axes are to the top/bottom/left/right of retained square.
+		float distToLeft = fabs(newX - retainedSquare.pointBL.x);
+		float distToRight = fabs(newX - retainedSquare.pointBR.x);
+		float distToTop = fabs(newY - retainedSquare.pointTL.y);
+		float distToBottom = fabs(newY - retainedSquare.pointBL.y);
+
+		// Decide which point of the retained square to replace.
+		// Top Left Corner.
+		if (distToLeft < distToRight && distToBottom > distToTop)
 		{
-			// Left Side.
-		case 0:
-			// Shrink left side inwareds by 1%.
-			if (shrinkOrExpand == 0)
-			{
-				retainedSquare.pointTL.x += (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.01;
-				retainedSquare.pointBL.x += (retainedSquare.pointBR.x - retainedSquare.pointBL.x) * 0.01;
-			}
-			// Expand left side outwards by 1%.
-			else
-			{
-				retainedSquare.pointTL.x -= (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.01;
-				retainedSquare.pointBL.x -= (retainedSquare.pointBR.x - retainedSquare.pointBL.x) * 0.01;
-			}
-			break;
-			// Top Side.
-		case 1:
-			// Shrink top side inwards by 1%.
-			if (shrinkOrExpand == 0)
-			{
-				retainedSquare.pointTL.y -= (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
-				retainedSquare.pointTR.y -= (retainedSquare.pointTR.y - retainedSquare.pointBR.y) * 0.01;
-			}
-			// Expand top side outwards by 1%.
-			else
-			{
-				retainedSquare.pointTL.y += (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
-				retainedSquare.pointTR.y += (retainedSquare.pointTR.y - retainedSquare.pointBR.y) * 0.01;
-			}
-			break;
-			// Right Side.
-		case 2:
-			// Shrink right side inwards by 1%.
-			if (shrinkOrExpand == 0)
-			{
-				retainedSquare.pointTR.x -= (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.01;
-				retainedSquare.pointBR.x -= (retainedSquare.pointBR.x - retainedSquare.pointBL.x) * 0.01;
-			}
-			// Expand right side outwards by 1%.
-			else
-			{
-				retainedSquare.pointTR.x += (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.01;
-				retainedSquare.pointBR.x += (retainedSquare.pointBR.x - retainedSquare.pointBL.x) * 0.01;
-			}
-			break;
-			// Bottom Side.
-		case 3:
-			// Shrink bottom side inwards by 1%.
-			if (shrinkOrExpand == 0)
-			{
-				retainedSquare.pointBL.y += (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
-				retainedSquare.pointBR.y += (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
-			}
-			// Expand bottom side outwards by 1%.
-			else
-			{
-				retainedSquare.pointBL.y -= (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
-				retainedSquare.pointBR.y -= (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
-			}
-			break;
+			retainedSquare.pointTL.x = newX; // Change x,y of top left point.
+			retainedSquare.pointTL.y = newY;
+			retainedSquare.pointBL.x = newX; // Change x of bottom left point.
+			retainedSquare.pointTR.y = newY; // Change y of top right point.
 		}
+		// Top Right Corner.
+		if (distToLeft > distToRight && distToBottom > distToTop)
+		{
+			retainedSquare.pointTR.x = newX; // Change x,y of top right point.
+			retainedSquare.pointTR.y = newY;
+			retainedSquare.pointBR.x = newX; // Change x of bottom right point.
+			retainedSquare.pointTL.y = newY; // Change y of top left point.
+		}
+		// Bottom Right Corner.
+		else if (distToLeft > distToRight && distToBottom < distToTop)
+		{
+			retainedSquare.pointBR.x = newX; // Change x,y of bottom Right point.
+			retainedSquare.pointBR.y = newY;
+			retainedSquare.pointTR.x = newX; // Change x of top right point.
+			retainedSquare.pointBL.y = newY; // Change y of bottom left point.
+		}
+		// Bottom Left Corner.
+		else if (distToLeft < distToRight && distToBottom < distToTop)
+		{
+			retainedSquare.pointBL.x = newX; // Change x,y of bottom left point.
+			retainedSquare.pointBL.y = newY;
+			retainedSquare.pointTL.x = newX; // Change x of top left point.
+			retainedSquare.pointBR.y = newY; // Change y of bottom right point.
+		}
+		
 	}
-	// Move dominant square by 1% in a random direction.
+	// Move dominant square by 10% in a random direction.
 	else
 	{
 		// Which direction to move.
@@ -808,7 +752,7 @@ void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare)
 		{
 			// Move Left.
 		case 0:
-			difference = (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.01;
+			difference = (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.1;
 			retainedSquare.pointTL.x -= difference;
 			retainedSquare.pointBL.x -= difference;
 			retainedSquare.pointTR.x -= difference;
@@ -816,7 +760,7 @@ void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare)
 			break;
 			// Move Up.
 		case 1:
-			difference = (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
+			difference = (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.1;
 			retainedSquare.pointTL.y += difference;
 			retainedSquare.pointTR.y += difference;
 			retainedSquare.pointBL.y += difference;
@@ -824,7 +768,7 @@ void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare)
 			break;
 			// Move Right.
 		case 2:
-			difference = (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.01;
+			difference = (retainedSquare.pointTR.x - retainedSquare.pointTL.x) * 0.1;
 			retainedSquare.pointTL.x += difference;
 			retainedSquare.pointBL.x += difference;
 			retainedSquare.pointTR.x += difference;
@@ -832,7 +776,7 @@ void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare)
 			break;
 			// Move Down.
 		case 3:
-			difference = (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.01;
+			difference = (retainedSquare.pointTL.y - retainedSquare.pointBL.y) * 0.1;
 			retainedSquare.pointTL.y -= difference;
 			retainedSquare.pointTR.y -= difference;
 			retainedSquare.pointBL.y -= difference;
@@ -843,8 +787,93 @@ void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare)
 }
 
 // ********************************************************************************
+// Crossover from the parent.
+void BruteForce::crossoverFromParent(DominantSquare &retainedSquare, vector<DominantSquare> parents)
+{
+	// Randomly choose which parent to crossover from.
+	int whichParent = rand() % parents.size();
+
+	// Randomly choose which axis to crossover from the parent.
+	// 0 = xMin, 1, = yMin, 2 = xMax, 3 = yMax.
+	int whichAxis = rand() % 4;
+
+	// These will be the max/min axes from the chosen parent.
+	float xMin;
+	float xMax;
+	float yMin;
+	float yMax;
+
+	switch (whichAxis)
+	{
+	case 0:
+		// Crossover the minimum x axis to retainedSquare.
+		xMin = parents[whichParent].pointBL.x;
+		
+		// If the minimum x axis of parent is greater than the
+		// maximum x axis of retainedSquare, update the maximum
+		// x axis of retainedSquare.
+		if (xMin >= retainedSquare.pointBR.x)
+		{
+			retainedSquare.pointTR.x = xMin;
+			retainedSquare.pointBR.x = xMin;
+		}
+		// Else upate the minimum x axis of retainedSquare.
+		else
+		{
+			retainedSquare.pointTL.x = xMin;
+			retainedSquare.pointBL.x = xMin;
+		}
+		break;
+	case 1:
+		// Crossover the minimum y axis to retainedSquare.
+		yMin = parents[whichParent].pointBL.y;
+		if (yMin >= retainedSquare.pointTL.y)
+		{
+			retainedSquare.pointTL.y = yMin;
+			retainedSquare.pointTR.y = yMin;
+		}
+		else
+		{
+			retainedSquare.pointBL.y = yMin;
+			retainedSquare.pointBR.y = yMin;
+		}
+		break;
+	case 2:
+		// Crossover the maximum x axis to retainedSquare.
+		xMax = parents[whichParent].pointTL.x;
+		if (xMax <= retainedSquare.pointBL.x)
+		{
+			retainedSquare.pointTL.x = xMax;
+			retainedSquare.pointBL.x = xMax;
+		}
+		else
+		{
+			retainedSquare.pointTR.x = xMax;
+			retainedSquare.pointBR.x = xMax;
+		}
+		break;
+	case 3:
+		// Crossover the maximum y axis to retainedSquare.
+		yMax = parents[whichParent].pointTL.y;
+		if (yMax <= retainedSquare.pointBL.y)
+		{
+			retainedSquare.pointBL.y = yMax;
+			retainedSquare.pointBR.y = yMax;
+		}
+		else
+		{
+			retainedSquare.pointTL.y = yMax;
+			retainedSquare.pointTR.y = yMax;
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+// ********************************************************************************
 // Evolves the dominant squares (select, mutate, crossover).
-vector<DominantSquare> BruteForce::evolveSquares(vector<DominantSquare> &domSquares, int xMin, int xMax, int yMin, int yMax, float retain, float select, float mutate)
+vector<DominantSquare> BruteForce::evolveSquares(vector<DominantSquare> &domSquares, ClassSquareLimits squareLimits, float retain, float select, float mutate)
 {
 	// Sort the dominant squares population (highest fitness first).
 	sortTheDomSquarePop(domSquares);
@@ -866,7 +895,7 @@ vector<DominantSquare> BruteForce::evolveSquares(vector<DominantSquare> &domSqua
 	for (int i = retainLength + 2; i < domSquares.size(); i++)
 	{
 		float randFloat = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-		if(select > randFloat)
+		if (select > randFloat)
 			retained.push_back(domSquares[i]);
 	}
 
@@ -875,13 +904,33 @@ vector<DominantSquare> BruteForce::evolveSquares(vector<DominantSquare> &domSqua
 	{
 		float randFloat = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 		if (mutate > randFloat)
-			mutateRetainedSquare(retained[i]);
+			mutateRetainedSquare(retained[i], squareLimits);
 	}
 
 	// Crossover with parents.
 	int desiredLength = domSquares.size() - parents.size() - retained.size();
+	vector<DominantSquare> children;
 
+	while (children.size() < desiredLength)
+	{
+		// Choose a random dominant square from the retained population.
+		int randRetain = rand() % retained.size();
+		DominantSquare child = retained[randRetain];
 
+		// Crossover child with one of the parents.
+		crossoverFromParent(child, parents);
+
+		// Add the child to the list of crossover children.
+		children.push_back(child);
+	}
+
+	// Add the retained population and the children population to parents population.
+	for (int i = 0; i < retained.size(); i++)
+		parents.push_back(retained[i]);
+	for (int i = 0; i < children.size(); i++)
+		parents.push_back(children[i]);
+
+	// Return the new population of dominant squares.
 	return parents;
 }
 
