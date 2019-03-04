@@ -127,7 +127,7 @@ private:
 	// ************** GENETIC ALGORITHM PART ***************
 	// *****************************************************
 	// The main function of the Genetic Algorithm.
-	void geneticAlgorithm();
+	void geneticAlgorithm(int popSize);
 
 	// Generates a population of dominant squares within the limits of the squareLimits classname.
 	vector<DominantSquare> generateRandomDominantSquares(int numOfSquares, ClassSquareLimits squareLimits);
@@ -161,4 +161,7 @@ private:
 	// Generates Random dominant squares for TESTING!!!
 	// FOR MATT/LENI INTEGRATION WITH VIS.
 	vector<MLPlane> GenerateDummyDominantPlanes();
+
+	//for testing rules
+	void testRules();
 };
