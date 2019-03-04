@@ -12,24 +12,29 @@ c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp
 c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(375): warning C4305: 'initializing': truncation from 'double' to 'float'
 c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(376): warning C4056: overflow in floating-point constant arithmetic
 c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(377): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(730): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(737): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(815): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(816): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(817): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(818): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(823): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(824): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(825): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(826): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(596): warning C4244: '=': conversion from '_Ty' to 'float', possible loss of data
+          with
+          [
+              _Ty=double
+          ]
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(736): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(743): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(821): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(822): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(823): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(824): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(829): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(830): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
 c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(831): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
 c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(832): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(833): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(834): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(839): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(840): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(841): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(842): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(941): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(970): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(837): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(838): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(839): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(840): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(845): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(846): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(847): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(848): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(947): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+c:\users\altim\documents\school\cs481\bruteforceml\bruteforceml\bruteforceml.cpp(976): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   BruteForceML.vcxproj -> C:\Users\altim\Documents\School\CS481\BruteForceML\x64\Debug\BruteForceML.exe

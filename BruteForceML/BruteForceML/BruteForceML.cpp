@@ -573,7 +573,7 @@ void BruteForce::findDominantPlanes()
 		}
 
 		// Calculate the average purities for all classes in totalClassPurities.
-		for (int tCP = 0; tCP < totalClassPurities.size(); tCP++)
+		for (int tCP = 0; tCP < totalClassPurities.size() && tCP < 2; tCP++) // tCP < 2 is a classes limiter1!!
 			avgClassPurity.push_back(totalClassPurities[tCP] / (double)planes.size());
 
 		// Calculate the total purity for all average class purities in plane set.
@@ -585,10 +585,16 @@ void BruteForce::findDominantPlanes()
 	}
 
 	// Determine which of the plane sets has the best purity.
-	for (int aPSP = 0; aPSP < avgPlanesetPurity.size() - 1; aPSP++)
+	float bestPurity = 0.0;
+	for (int aPSP = 0; aPSP < avgPlanesetPurity.size(); aPSP++)
 	{
-		if (avgPlanesetPurity[aPSP] > avgPlanesetPurity[aPSP + 1])
+		cout << "AvgPlanesetPurity Of " << aPSP << ": " << avgPlanesetPurity[aPSP] << "\t\t";
+		cout << "Best Planeset Purity So Far: " << bestPurity << endl;
+		if (avgPlanesetPurity[aPSP] > bestPurity)
+		{
 			bestPurityIndex = aPSP;
+			bestPurity = avgPlanesetPurity[aPSP];
+		}
 	}
 
 	cout << "Planes Set " << bestPurityIndex << " has the Best Purity Dominant Squares!\n\n";
