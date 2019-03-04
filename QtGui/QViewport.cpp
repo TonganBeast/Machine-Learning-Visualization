@@ -1,24 +1,27 @@
 #include "QViewport.h"
 #include <gl/GLU.h>
 
-QViewport::QViewport(QWidget* parent) : QGLWidget(parent) {
+QViewport::QViewport(QWidget* parent) : QGLWidget(parent) 
+{
 	/* Setup some arbitrary constants */
-	this->pointSize = 2.0f;
-	this->lineWidth = 1.0f;
+	this->pointSize = 4.0f;
+	this->lineWidth = 2.0f;
 
-	this->clearColorR = 0.0f;
-	this->clearColorG = 0.0f;
-	this->clearColorB = 0.0f;
+	this->clearColorR = 1.0f;
+	this->clearColorG = 1.0f;
+	this->clearColorB = 1.0f;
 }
 
-QViewport::~QViewport() {
+QViewport::~QViewport() 
+{
 
 }
 
 /* This function is only called once during program initialization. This
  * is where you can setup any required OpenGL settings. 
  */
-void QViewport::initializeGL() {
+void QViewport::initializeGL() 
+{
 	glClearColor(this->clearColorR, this->clearColorG, this->clearColorB, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glPointSize(this->pointSize);
@@ -33,7 +36,8 @@ void QViewport::initializeGL() {
  * this->updgateGL(). Do NOT call updateGL() from this function (this will result
  * in infinite event recursion).
  */
-void QViewport::paintGL() {
+void QViewport::paintGL() 
+{
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glPushMatrix();
@@ -55,7 +59,8 @@ void QViewport::paintGL() {
 	glFlush();
 }
 
-void QViewport::resizeGL(int width, int height) {
+void QViewport::resizeGL(int width, int height) 
+{
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();

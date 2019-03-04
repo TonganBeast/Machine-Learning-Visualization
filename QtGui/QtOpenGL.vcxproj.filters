@@ -36,34 +36,26 @@
     <ClCompile Include="QtOpenGL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_QtOpenGL.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_QtOpenGL.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_QtOpenGL.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
     <ClCompile Include="QViewport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="QtOpenGL.h">
+    <QtMoc Include="QtOpenGL.h">
       <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="QtOpenGL.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="QtOpenGL.qrc">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GeneratedFiles\ui_QtOpenGL.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
+    <QtUic Include="QtOpenGL.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="QtOpenGL.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="QViewport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
