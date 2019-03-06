@@ -10,12 +10,6 @@ Plane::Plane(int planePosition, int numMD_Points, int xDim, int yDim, float xPts
 	planeIndex = planePosition;
 	//generate two-dimensional points using the given arrays
 	twoD_Points = new Point[numPoints];
-	/*std::cout << "---Points in plane X" << xDim << ", X" << yDim << "---" << std::endl;
-	for (int i = 0; i < numPoints; i++) {
-		twoD_Points[i].setX(xPts[i], windowOffset, realWidth, planeIndex);
-		twoD_Points[i].setY(yPts[i], windowOffset, realWidth, planeIndex);
-		std::cout << "point " << i << ": " << xPts[i] << ", " << yPts[i] << std::endl;
-	}*/
 	this->listPoints();
 }
 

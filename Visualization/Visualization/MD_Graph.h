@@ -42,5 +42,6 @@ public:
 	void buildGraph(std::vector<Plane>, int, int);
 	void printPlanePts(int);
 	void associateColors();
+	void drawDominantRectangle(Point, Point, Point, Point);
 	//~MD_Graph();
 };

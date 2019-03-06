@@ -156,13 +156,12 @@ std::vector<std::vector<float>> MD_Graph::parseData(std::vector<std::string> dat
 		cValue = cTokens;
 		for (int row = 0; row < numDimensions; row++) {
 			std::string strValue(cValue);
-			//std::cout << strValue << ", ";
+			std::cout << strValue << ", ";
 			fValue = std::stof(strValue);
 			points[row].push_back(fValue);
 			cValue = strtok(NULL, ", ");
 		}
-		//std::cout << cValue << "\n";
-		//std::cout << cValue << std::endl;
+		std::cout << cValue << "\n";
 		std::string classStr(cValue);
 		Classification c(classStr);
 		classificationForPoints.push_back(c);
@@ -418,4 +417,8 @@ void MD_Graph::updatePtsClassification() {
 			}
 		}
 	}
+}
+
+void MD_Graph::drawDominantRectangle(Point br, Point bl, Point tr, Point tl) {
+
 }

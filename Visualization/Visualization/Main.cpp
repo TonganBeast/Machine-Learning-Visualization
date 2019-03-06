@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 
 void Display() {
 	glClear(GL_COLOR_BUFFER_BIT);
-	MD_Graph graph("iris-data.txt");
+	MD_Graph graph("breast-cancer-wisconsin-data.txt");
 	graph.printPlanePts(0);
 }
 
@@ -34,5 +34,7 @@ void Init(void) {
 	glLineWidth(2.0);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	gluOrtho2D(0.0, SCREEN_WIDTH, 0.0, SCREEN_HEIGHT);
 }
