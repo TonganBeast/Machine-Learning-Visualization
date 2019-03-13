@@ -85,11 +85,11 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Matt\Documents\GitHub\Machine-Learning-Visualization\Visualization\Visualization\Debug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Matt\Documents\GitHub\Machine-Learning-Visualization\Visualization\Visualization;C:\Users\Matt\Documents\GitHub\Machine-Learning-Visualization\Visualization\Visualization\Debug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glu32.lib;glut32.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Matt\Documents\GitHub\Machine-Learning-Visualization\Visualization\Visualization\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Matt\Documents\GitHub\Machine-Learning-Visualization\Visualization\Visualization;C:\Users\Matt\Documents\GitHub\Machine-Learning-Visualization\Visualization\Visualization\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

@@ -1,4 +1,6 @@
 #include "MD_Graph.h"
+#include "glui.h"
+#include <string.h>
 
 
 MD_Graph graph;
@@ -21,7 +23,10 @@ int main(int argc, char** argv) {
 	Init();
 	glutDisplayFunc(Display);
 	glutMainLoop();
-	//~
+	
+	//GLUI *glui = GLUI_Master.create_glui("GLUI");
+
+
 	return 0;
 }
 
@@ -30,7 +35,6 @@ void dataFit(int numPlanes) {
 	int x = (numPlanes * 300) + 100;
 	std::cout << x << "\n";
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-	//gluOrtho2D(0.0, x, 0.0, SCREEN_HEIGHT);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 

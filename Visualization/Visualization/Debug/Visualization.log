@@ -1,3 +1,2 @@
 ﻿  Main.cpp
-c:\users\matt\documents\github\machine-learning-visualization\visualization\visualization\main.cpp(20): error C2660: 'glutCreateWindow_ATEXIT_HACK': function does not take 2 arguments
-  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\include\glut.h(497): note: see declaration of 'glutCreateWindow_ATEXIT_HACK'
+  Visualization.vcxproj -> C:\Users\Matt\Documents\GitHub\Machine-Learning-Visualization\Visualization\Visualization\Debug\Visualization.exe
