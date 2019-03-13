@@ -3,22 +3,13 @@
 
 Plane::Plane() {}
 
-Plane::Plane(int planePosition, int numMD_Points, int xDim, int yDim, float xPts[], float yPts[]) {
-	numPoints = numMD_Points;
-	planeX = xDim;
-	planeY = yDim;
-	planeIndex = planePosition;
-	//generate two-dimensional points using the given arrays
-	twoD_Points = new Point[numPoints];
-	this->listPoints();
-}
-
-Plane::Plane(int planePosition, int numPoints, int xDimension, int yDimension, std::vector<float> xPoints, 
+Plane::Plane(int planePosition, int numPoints, int xDimension, int yDimension, std::vector<float> xPoints,
 	std::vector<float> yPoints, std::vector<Classification> pointClassifications) {
 	this->numPoints = numPoints;
 	this->planeX = xDimension;
 	this->planeY = yDimension;
-	this->planeIndex = planePosition;
+	int a = planePosition;
+	this->planeIndex = a;
 	//copy the pointClassifications vector so as to not destroy the original
 	std::vector<Classification> localPtClassification(pointClassifications);
 	//determine this plane's relativeWidth and relativeHeight
@@ -50,14 +41,61 @@ Plane::Plane(int planePosition, int numPoints, int xDimension, int yDimension, s
 	}
 }
 
-void Plane::listPoints() {
-	for (int i = 0; i < numPoints; i++) {
-		//std::cout << "(" << twoD_Points_v[i].getPoint().getWorldX() << ", " << twoD_Points_v[i].getPoint().getWorldY() << ")" << std::endl;
-	}
+Plane::Plane(int planePosition, int numPoints, int xDimension, int yDimension, std::vector<Point> points, float relativeHeight, float relativeWidth) {
+	this->numPoints = numPoints;
+	this->planeX = xDimension;
+	this->planeY = yDimension;
+	this->planeIndex = planePosition;
+	this->twoD_Points_v = points;
+	this->relativeHeight = relativeHeight;
+	this->relativeWidth = relativeWidth;
+}
+
+Plane::Plane(const Plane& other) {
+	this->planeIndex = other.planeIndex;
+	this->numPoints = other.numPoints;
+	this->planeX = other.planeX;
+	this->planeY = other.planeY;
+	this->twoD_Points_v = other.twoD_Points_v;
+	this->relativeHeight = other.relativeHeight;
+	this->relativeWidth = other.relativeWidth;
+}
+
+void Plane::listPoints() {}
+
+Plane& Plane::operator=(const Plane& other) {
+	planeIndex = other.planeIndex;
+	numPoints = other.numPoints;
+	planeX = other.planeX;
+	planeY = other.planeY;
+	twoD_Points_v = other.twoD_Points_v;
+	relativeHeight = other.relativeHeight;
+	relativeWidth = other.relativeWidth;
+	return *this;
+}
+
+Plane Plane::operator=(Plane&& other) {
+	int pix, numpts, px, py;
+	std::vector<Point> pts;
+	float rw, rh;
+	pix = other.planeIndex;
+	numpts = other.numPoints;
+	px = other.planeX;
+	py = other.planeY;
+	pts = other.twoD_Points_v;
+	rw = other.relativeWidth;
+	rh = other.relativeHeight;
+	other.planeIndex = 0;
+	other.numPoints = 0;
+	other.planeX = 0;
+	other.planeY = 0;
+	other.twoD_Points_v.clear();
+	other.relativeWidth = 0;
+	other.relativeHeight = 0;
+	return Plane(pix, numpts, px, py, pts, rh, rw);
 }
 
 void Plane::drawPlane(int planeIndex) {
-	std::cout << "Building plane with 0, 0 at: " << (windowOffset + (planeIndex * this->realWidth)) << ", 100" << std::endl;
 	glColor3f(0.0, 0.0, 0.0);
 	glBegin(GL_LINES);
 	glVertex2f((float)(windowOffset + (planeIndex * realWidth)), (float)50);
@@ -66,29 +104,8 @@ void Plane::drawPlane(int planeIndex) {
 	glVertex2f((float)(windowOffset + (planeIndex * realWidth)), (float)(50 + realHeight));
 	glEnd();
 	glFlush();
-	printDimensions();
-}
 
-void Plane::drawPoints(std::string *classificationList) {
-	std::string currentClassification = classificationList[0];
-	std::string classificationCheck;
-	glBegin(GL_POINTS);
-	for (int i = 0; i < numPoints; i++) {
-		classificationCheck = classificationList[i];
-		if(i < 50)
-			glColor3f(1.0, 0.0, 0.0);
-		if (i >= 50 && i < 100)
-			glColor3f(0.0, 1.0, 0.0);
-		else
-			glColor3f(0.0, 0.0, 1.0);
-
-		twoD_Points[i].getPoint();
-		twoD_Points[i].getPoint().getWorldX();
-		twoD_Points[i].getPoint().getWorldY();
-		glVertex2f(twoD_Points[i].getWorldX(), twoD_Points[i].getWorldY());
-	}
-	glEnd();
-	glFlush();
+	writeIndeces();
 }
 
 void Plane::drawPoints() {
@@ -108,17 +125,9 @@ Point Plane::getPoint(int index) {
 	return this->twoD_Points_v[index];
 }
 
-void Plane::printDimensions() {
-	unsigned char digits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-	std::cout << "X" << planeX << ", X" << planeY << std::endl;
+float Plane::planeMidpoint() {
 	float x = ((windowOffset + (planeIndex * realWidth)) + ((planeIndex * realWidth) + realWidth)) / 2.0;
-	float y = (float)30.0;
-	glRasterPos2f(x, y);
-	unsigned char* str = new unsigned char[6];
-	str[0] = 'X'; str[1] = digits[planeX]; str[2] = ','; str[3] = char(32); str[4] = 'X'; str[5] = digits[planeY];
-	for (int i = 0; i < 6; i++) {
-		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10, str[i]);
-	}
+	return x;
 }
 
 /* function will read through both vectors, find the maximum value for the x and y
@@ -134,8 +143,8 @@ void Plane::determineRelativeBounds(std::vector<float> x, std::vector<float> y) 
 			largestY = y[i];
 	}
 	//set the relativeWidth and relativeHeight to 110% of their corresponding largest values
-	relativeWidth = largestX + (largestX * 0.1);
-	relativeHeight = largestY + (largestY * 0.1);
+	this->relativeWidth = largestX + (largestX * 0.1);
+	this->relativeHeight = largestY + (largestY * 0.1);
 }
 
 float Plane::getRelativeWidth() {
@@ -144,4 +153,264 @@ float Plane::getRelativeWidth() {
 
 float Plane::getRelativeHeight() {
 	return relativeHeight;
+}
+
+Plane& Plane::getPlane() {
+	return *this;
+}
+
+int Plane::getXindex() {
+	return planeX;
+}
+
+int Plane::getYindex() {
+	return planeY;
+}
+
+void Plane::writeIndeces() {
+	glLineWidth(1.0);
+	float xx = this->planeMidpoint() - ((5 * 10) / 2);
+	float yy = 40.0;
+	writeX(xx, yy);
+	xx = xx + 10;
+	switch (planeX) {
+	case 0:
+		writeZero(xx, yy);
+		break;
+	case 1:
+		writeOne(xx, yy);
+		break;
+	case 2:
+		writeTwo(xx, yy);
+		break;
+	case 3:
+		writeThree(xx, yy);
+		break;
+	case 4:
+		writeFour(xx, yy);
+		break;
+	case 5:
+		writeFive(xx, yy);
+		break;
+	case 6:
+		writeSix(xx, yy);
+		break;
+	case 7:
+		writeSeven(xx, yy);
+		break;
+	case 8:
+		writeEight(xx, yy);
+		break;
+	case 9:
+		writeNine(xx, yy);
+		break;
+	}
+	xx += 10;
+	writeComma(xx, yy);
+	xx += 10;
+	writeX(xx, yy);
+	xx += 10;
+	switch (planeY) {
+	case 0:
+		writeZero(xx, yy);
+		break;
+	case 1:
+		writeOne(xx, yy);
+		break;
+	case 2:
+		writeTwo(xx, yy);
+		break;
+	case 3:
+		writeThree(xx, yy);
+		break;
+	case 4:
+		writeFour(xx, yy);
+		break;
+	case 5:
+		writeFive(xx, yy);
+		break;
+	case 6:
+		writeSix(xx, yy);
+		break;
+	case 7:
+		writeSeven(xx, yy);
+		break;
+	case 8:
+		writeEight(xx, yy);
+		break;
+	case 9:
+		writeNine(xx, yy);
+		break;
+	}
+	glLineWidth(2.0);
+}
+
+//the following functions use OpenGL to output simple, boxed numbers
+//to independently handle labelling planes with their MD_Point's indeces.
+//All characters are drawn to fit an 8x12 pixel rectangle
+//All functions have their origin at the top-left
+void Plane::writeZero(float x, float y) {
+	glBegin(GL_LINES);
+	glVertex2f(x, y);			//start
+	glVertex2f(x, y - 12);		//end
+	glVertex2f(x, y - 12);		//start
+	glVertex2f(x + 8, y - 12);	//end
+	glVertex2f(x + 8, y - 12);	//start
+	glVertex2f(x + 8, y);		//end
+	glVertex2f(x + 8, y);		//start
+	glVertex2f(x, y - 12);		//end
+	glVertex2f(x + 8, y);		//start
+	glVertex2f(x, y);			//end
+	glEnd();
+	glFlush();
+}
+
+void Plane::writeOne(float x, float y) {
+	glBegin(GL_LINES);
+	glVertex2f(x, y);			//start
+	glVertex2f(x + 4, y);		//end
+	glVertex2f(x + 4, y);		//start
+	glVertex2f(x + 4, y - 12);	//end
+	glVertex2f(x, y - 12);		//start
+	glVertex2f(x + 8, y - 12);	//end
+	glEnd();
+	glFlush();
+}
+
+void Plane::writeTwo(float x, float y) {
+	glBegin(GL_LINES);
+	glVertex2f(x, y);			//start
+	glVertex2f(x + 8, y);		//end
+	glVertex2f(x + 8, y);		//start
+	glVertex2f(x + 8, y - 6);	//end
+	glVertex2f(x + 8, y - 6);	//start
+	glVertex2f(x, y - 6);		//end
+	glVertex2f(x, y - 6);		//start
+	glVertex2f(x, y - 12);		//end
+	glVertex2f(x, y - 12);		//start
+	glVertex2f(x + 8, y - 12);	//end
+	glEnd();
+	glFlush();
+}
+
+void Plane::writeThree(float x, float y) {
+	glBegin(GL_LINES);
+	glVertex2f(x, y);			//start
+	glVertex2f(x + 8, y);		//end
+	glVertex2f(x + 8, y);		//start
+	glVertex2f(x + 8, y - 12);	//end
+	glVertex2f(x + 8, y - 12);	//start
+	glVertex2f(x, y - 12);		//end
+	glVertex2f(x + 1, y - 5);	//start
+	glVertex2f(x + 8, y - 5);	//end
+	glEnd();
+	glFlush();
+}
+
+void Plane::writeFour(float x, float y) {
+	glBegin(GL_LINES);
+	glVertex2f(x, y);			//start
+	glVertex2f(x, y - 6);		//end
+	glVertex2f(x, y - 6);		//start
+	glVertex2f(x + 8, y - 6);	//end
+	glVertex2f(x + 8, y);		//start
+	glVertex2f(x + 8, y - 12);	//end
+	glEnd();
+	glFlush();
+}
+
+void Plane::writeFive(float x, float y) {
+	glBegin(GL_LINES);
+	glVertex2f(x, y);
+	glVertex2f(x + 8, y);
+	glVertex2f(x, y);
+	glVertex2f(x, y - 6);
+	glVertex2f(x, y - 6);
+	glVertex2f(x + 8, y - 6);
+	glVertex2f(x + 8, y - 6);
+	glVertex2f(x + 8, y - 12);
+	glVertex2f(x + 8, y - 12);
+	glVertex2f(x, y - 12);
+	glEnd();
+	glFlush();
+}
+
+void Plane::writeSix(float x, float y) {
+	glBegin(GL_LINES);
+	glVertex2f(x, y);
+	glVertex2f(x + 8, y);
+	glVertex2f(x, y);
+	glVertex2f(x, y - 12);
+	glVertex2f(x, y - 12);
+	glVertex2f(x + 8, y - 12);
+	glVertex2f(x + 8, y - 12);
+	glVertex2f(x + 8, y - 6);
+	glVertex2f(x + 8, y - 6);
+	glVertex2f(x, y - 6);
+	glEnd();
+	glFlush();
+}
+
+void Plane::writeSeven(float x, float y) {
+	glBegin(GL_LINES);
+	glVertex2f(x, y);
+	glVertex2f(x + 7, y);
+	glVertex2f(x + 7, y);
+	glVertex2f(x + 7, y - 12);
+	glVertex2f(x + 3, y - 4);
+	glVertex2f(x + 8, y - 4);
+	glEnd();
+	glFlush();
+}
+
+void Plane::writeEight(float x, float y) {
+	glBegin(GL_LINES);
+	glVertex2f(x, y);
+	glVertex2f(x + 8, y);
+	glVertex2f(x, y);
+	glVertex2f(x, y - 12);
+	glVertex2f(x, y - 12);
+	glVertex2f(x + 8, y - 12);
+	glVertex2f(x + 8, y - 12);
+	glVertex2f(x + 8, y);
+	glVertex2f(x, y - 5);
+	glVertex2f(x + 8, y - 5);
+	glEnd();
+	glFlush();
+}
+
+void Plane::writeNine(float x, float y) {
+	glBegin(GL_LINES);
+	glVertex2f(x, y);
+	glVertex2f(x + 8, y);
+	glVertex2f(x, y);
+	glVertex2f(x, y - 5);
+	glVertex2f(x, y - 5);
+	glVertex2f(x + 8, y - 5);
+	glVertex2f(x + 8, y);
+	glVertex2f(x + 8, y - 12);
+	glVertex2f(x + 8, y - 12);
+	glVertex2f(x, y - 12);
+	glEnd();
+	glFlush();
+}
+
+void Plane::writeX(float x, float y) {
+	glBegin(GL_LINES);
+	glVertex2f(x, y);
+	glVertex2f(x + 8, y - 12);
+	glVertex2f(x + 8, y);
+	glVertex2f(x, y - 12);
+	glEnd();
+	glFlush();
+}
+
+void Plane::writeComma(float x, float y) {
+	glBegin(GL_LINES);
+	glVertex2f(x + 4, y - 9);
+	glVertex2f(x + 4, y - 11);
+	glVertex2f(x + 4, y - 11);
+	glVertex2f(x + 2, y - 13);
+	glEnd();
+	glFlush();
 }

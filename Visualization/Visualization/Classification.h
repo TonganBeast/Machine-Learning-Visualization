@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 
 class Classification {
@@ -29,7 +30,7 @@ public:
 	float getBlue();
 	//getter for this classification's name
 	std::string getTitle();
-	
+
 	bool equals(Classification &);
 
 	bool sameTitle(Classification);

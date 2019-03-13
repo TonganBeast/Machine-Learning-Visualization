@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BruteForceML.cpp" />
     <ClCompile Include="Classification.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MD_Graph.cpp" />
@@ -134,6 +135,7 @@
     <ClCompile Include="Point.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BruteForceML.h" />
     <ClInclude Include="Classification.h" />
     <ClInclude Include="MD_Graph.h" />
     <ClInclude Include="Plane.h" />

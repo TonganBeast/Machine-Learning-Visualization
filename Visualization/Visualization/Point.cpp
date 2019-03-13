@@ -53,6 +53,7 @@ Point::Point(Point&& other) {
 	coordinateY = other.coordinateY;
 	worldX = other.worldX;
 	worldY = other.worldY;
+	classification = other.classification;
 	other.coordinateX = 0;
 	other.coordinateY = 0;
 	other.worldX = 0;
@@ -99,23 +100,17 @@ float Point::getWorldY() {
 
 void Point::setCoordX(float newX) {
 	coordinateX = newX;
-	//worldX = coordinateX + initialOffset + (offset * planeIndex);
-	//std::cout << "Point's X value set to " << coordinateX << std::endl;
 }
 
 void Point::setCoordY(float newY) {
 	coordinateY = newY;
-	//worldY = newY + initialOffset;
-	//std::cout << "Point's Y value set to " << coordinateY << std::endl;
 }
 
 Point& Point::getPoint() {
 	return *this;
 }
 
-void Point::printPt() {
-	std::cout << "(" << this->worldX << ", " << this->worldY << ")" << std::endl;
-}
+void Point::printPt() {}
 
 //setter for classification instantiates classification from string
 void Point::setClassification(std::string title) {
