@@ -29,6 +29,7 @@ int main(int argc, char** argv)
 
 	// Read from file.
 	string filename = "iris-data.txt";
+	//string filename = "breast-cancer-wisconsin-data.txt";
 
 	/*
 	// Open the file an make sure it exists.
