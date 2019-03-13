@@ -1,7 +1,7 @@
 #pragma once
 /*
-Author:	Al Timofeyev
-Date:	2/21/2019
+Author:	Al Timofeyev & Wesley Higbee
+Date:	Feb.21 2019 - Mar.15 2019
 Desc:	A brute force attempt to identify Dominant Square
 with the best (highest) purity level.
 */
@@ -41,7 +41,7 @@ struct ClassSquareLimits
 
 struct DominantSquare
 {
-	string dominantClass;
+	string className;
 	double purity = 0;
 	int classPointsInSquare = 0;
 	int totalPointsInSquare = 0;
@@ -49,20 +49,34 @@ struct DominantSquare
 	// Points of dominant square: Top Left, Top Right,
 	// Bottom Right, Bottom Left.
 	MLPoint pointTL, pointTR, pointBR, pointBL;
+
+	// X and Y coordinates.
+	float xMin;
+	float xMax;
+	float yMin;
+	float yMax;
+
+	// Index of plane it belongs to.
+	int planeIndex;
+
+	// Dimensions (attributes) used to make the plane.
+	int dimensionX;	// X
+	int dimensionY;	// Y
 };
 
 struct MLPlane
 {
 	// These are indexes to the attribute in
 	// classDataset of DataClass struct. (DIMENSIONS OF PLANE)
-	int attribute1;	// X
-	int attribute2;	// Y
+	int dimensionX;	// X
+	int dimensionY;	// Y
 	vector<DominantSquare> domSquares;
 
 	// Basically, all the points in the plane.
-	vector<float> xCoordinates;	// All the x coordinates in plane.
-	vector<float> yCoordinates;	// All the y coordinates in plane.
-	vector<MLPoint> pointsInPlane; // The combined x,y coordinates.
+	vector<float> xCoordinates;				// All the x coordinates in plane.
+	vector<float> yCoordinates;				// All the y coordinates in plane.
+	vector<MLPoint> pointsInPlane;			// The combined x,y coordinates (ALL the points in plane).
+	vector<MLPoint> trainingPointsInPlane;	// The set of training points used for this plane.
 	vector<string> allClassNames;
 
 	// Only used to find dominant squares.
@@ -72,6 +86,13 @@ struct MLPlane
 struct PlaneSet
 {
 	vector<MLPlane> planes;
+};
+
+struct Rules
+{
+	string className;
+	vector<DominantSquare> in;
+	vector<DominantSquare> out;
 };
 
 class BruteForce
@@ -89,11 +110,15 @@ public:
 	vector<MLPlane> run();
 
 private:
-	string filename;				// Name of file with data;
-	vector<DataClass> classes;		// The organized class data of all classes.
-	vector<MLPlane> dominantPlanes;	// The dominant planes produced by Brute Force.
-	vector<PlaneSet> setOfPlanes;	// Sets of planes (will be limited to 3 or 4).
-	vector<DominantSquare> dominantSquares;
+	string filename;								// Name of file with data;
+	vector<DataClass> classes;						// The organized class data of all classes.
+	vector<DataClass> training;						// Split classes data into n% training.
+	vector<DataClass> testing;						// Split classes data into m% testing.
+	vector<MLPlane> dominantPlanes;					// The dominant planes produced by Brute Force.
+	vector<PlaneSet> setOfPlanes;					// Sets of planes (will be limited to 3 or 4).
+	vector<vector<DominantSquare>> dominantSquares;	// List of dominant squares from each plane sorted by class.
+	vector<vector<float>> planeDimensions;			// List of plane x,y dimension pairs for each plane.
+	vector<Rules> rules;							// Set of identified rules for each class.
 	int numOfAttributes;
 	int numOfPlanesPossible;
 
@@ -102,6 +127,9 @@ private:
 	// --------------------------------------
 	// Read the file and initialize classes vector.
 	void readFile();
+
+	// Split data into testing and training.
+	void splitData(float trainPercent, float testPercent);
 
 	// Get the number of attributes.
 	void getNumOfAttributes();
@@ -115,13 +143,25 @@ private:
 	// Determine the limits of dominant squares.
 	void setDomSquareLimits();
 
+	// Calculate the purity of a dominant square inside a plane.
 	void calculatePurity(DominantSquare &box, MLPlane plane);
+	void calculatePurity(DominantSquare &box, vector<MLPoint> points); // Using testing set of points.
 
 	// Find the dominant squares in a Plane.
 	void findDominantSquares(MLPlane pln);
 
 	// Find a dominant set of planes with the best dominant squares.
 	void findDominantPlanes();
+
+	// Save the dominant squares from all planes to squares.txt
+	// Layout: int plane, float yMin, float yMax, float xMin, float xMax
+	int saveDominantSquaresToFile();
+
+	// Save the dominant squares from each plane into a sorted list (by class) of dominant squares.
+	void saveDominantSquaresToList();
+
+	// Save the plane dimensions as combinations and keep them in a vector list.
+	void savePlaneDimensionCombinations();
 
 	// *****************************************************
 	// ************** GENETIC ALGORITHM PART ***************
@@ -158,10 +198,9 @@ private:
 	// *****************************************************
 	// *****************************************************
 
-	// Generates Random dominant squares for TESTING!!!
-	// FOR MATT/LENI INTEGRATION WITH VIS.
-	vector<MLPlane> GenerateDummyDominantPlanes();
-
 	//for testing rules
-	void testRules();
+	void createRules();
+	double testRule();
+	bool checkIn(Rules rule, int &countFalse, int j, int i);
+	bool checkOut(Rules rule, int &countFalse, bool &checkNext, int j, int i);
 };
