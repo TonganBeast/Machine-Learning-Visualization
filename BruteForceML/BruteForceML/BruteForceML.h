@@ -14,25 +14,33 @@ with the best (highest) purity level.
 #include <sstream>
 #include <iterator>
 
-using namespace std;
+//using namespace std; // Forced not to use namespace std CAUSES MATT AND LENI WON'T LET US!! WUBBA LUBBA DUB DUB!!!
+//paramters for user 
+//% and actual number of incorrectly classified points in first rectangle for linking rectangles
+//# of rectangles per plane or smallest accuracy
 
 struct DataClass
 {
-	string className;
-	vector<vector<float>> classDataset;
+	std::string className;
+	std::vector<std::vector<float>> classDataset;
 };
 
 struct MLPoint
 {
-	string className;
+	std::string className;
 	float x;
 	float y;
-	vector<bool> inDomSquare;
+	int entryIndex;//links points multidimensionally
+	bool inDomSquare;
+};
+struct dataEntry
+{
+	std::vector<std::vector<MLPoint>> entries;
 };
 
 struct ClassSquareLimits
 {
-	string className;
+	std::string className;
 
 	// Points of dominant square: Top Left, Top Right,
 	// Bottom Right, Bottom Left.
@@ -41,7 +49,7 @@ struct ClassSquareLimits
 
 struct DominantSquare
 {
-	string className;
+	std::string className;
 	double purity = 0;
 	int classPointsInSquare = 0;
 	int totalPointsInSquare = 0;
@@ -70,29 +78,33 @@ struct MLPlane
 	// classDataset of DataClass struct. (DIMENSIONS OF PLANE)
 	int dimensionX;	// X
 	int dimensionY;	// Y
-	vector<DominantSquare> domSquares;
+	std::vector<DominantSquare> domSquares;
 
 	// Basically, all the points in the plane.
-	vector<float> xCoordinates;				// All the x coordinates in plane.
-	vector<float> yCoordinates;				// All the y coordinates in plane.
-	vector<MLPoint> pointsInPlane;			// The combined x,y coordinates (ALL the points in plane).
-	vector<MLPoint> trainingPointsInPlane;	// The set of training points used for this plane.
-	vector<string> allClassNames;
+	std::vector<float> xCoordinates;				// All the x coordinates in plane.
+	std::vector<float> yCoordinates;				// All the y coordinates in plane.
+	std::vector<MLPoint> pointsInPlane;			// The combined x,y coordinates (ALL the points in plane).
+	std::vector<MLPoint> trainingPointsInPlane;	// The set of training points used for this plane.
+	std::vector<std::string> allClassNames;
 
 	// Only used to find dominant squares.
-	vector<ClassSquareLimits> limitsOfClasses;
+	std::vector<ClassSquareLimits> limitsOfClasses;
 };
 
 struct PlaneSet
 {
-	vector<MLPlane> planes;
+	std::vector<MLPlane> planes;
 };
 
-struct Rules
+struct Rule
 {
-	string className;
-	vector<DominantSquare> in;
-	vector<DominantSquare> out;
+	int ruleNum; // The rule number.
+	std::string className;
+	double accuracy;
+	std::vector<DominantSquare> in;
+	std::vector<DominantSquare> out;
+
+	std::vector<DataClass> pointsInRule;
 };
 
 class BruteForce
@@ -102,23 +114,23 @@ public:
 	// ------------ CONSTRUCTORS ------------
 	// --------------------------------------
 	//BruteForce(vector<DataClass> classesSet);
-	BruteForce(string filename);
+	BruteForce(std::string filename);
 
 	// --------------------------------------
 	// -------------- METHODS ---------------
 	// --------------------------------------
-	vector<MLPlane> run();
+	std::vector<MLPlane> run();
 
 private:
-	string filename;								// Name of file with data;
-	vector<DataClass> classes;						// The organized class data of all classes.
-	vector<DataClass> training;						// Split classes data into n% training.
-	vector<DataClass> testing;						// Split classes data into m% testing.
-	vector<MLPlane> dominantPlanes;					// The dominant planes produced by Brute Force.
-	vector<PlaneSet> setOfPlanes;					// Sets of planes (will be limited to 3 or 4).
-	vector<vector<DominantSquare>> dominantSquares;	// List of dominant squares from each plane sorted by class.
-	vector<vector<float>> planeDimensions;			// List of plane x,y dimension pairs for each plane.
-	vector<Rules> rules;							// Set of identified rules for each class.
+	std::string filename;								// Name of file with data;
+	std::vector<DataClass> classes;						// The organized class data of all classes.
+	std::vector<DataClass> training;						// Split classes data into n% training.
+	std::vector<DataClass> testing;						// Split classes data into m% testing.
+	std::vector<MLPlane> dominantPlanes;					// The dominant planes produced by Brute Force.
+	std::vector<PlaneSet> setOfPlanes;					// Sets of planes (will be limited to 3 or 4).
+	std::vector<std::vector<DominantSquare>> dominantSquares;	// List of dominant squares from each plane sorted by class.
+	std::vector<std::vector<float>> planeDimensions;			// List of plane x,y dimension pairs for each plane.
+	std::vector<Rule> rules;							// Set of identified rules for each class.
 	int numOfAttributes;
 	int numOfPlanesPossible;
 
@@ -145,7 +157,7 @@ private:
 
 	// Calculate the purity of a dominant square inside a plane.
 	void calculatePurity(DominantSquare &box, MLPlane plane);
-	void calculatePurity(DominantSquare &box, vector<MLPoint> points); // Using testing set of points.
+	void calculatePurity(DominantSquare &box, std::vector<MLPoint> points); // Using testing set of points.
 
 	// Find the dominant squares in a Plane.
 	void findDominantSquares(MLPlane pln);
@@ -163,6 +175,9 @@ private:
 	// Save the plane dimensions as combinations and keep them in a vector list.
 	void savePlaneDimensionCombinations();
 
+	// Save the created rules to file rules.txt.
+	int saveRulesToFile();
+
 	// *****************************************************
 	// ************** GENETIC ALGORITHM PART ***************
 	// *****************************************************
@@ -170,37 +185,37 @@ private:
 	void geneticAlgorithm(int popSize);
 
 	// Generates a population of dominant squares within the limits of the squareLimits classname.
-	vector<DominantSquare> generateRandomDominantSquares(int numOfSquares, ClassSquareLimits squareLimits);
+	std::vector<DominantSquare> generateRandomDominantSquares(int numOfSquares, ClassSquareLimits squareLimits);
 
 	// Calculates the purity of the population of dominant squares.
-	void fitness(vector<DominantSquare> &domSquares, MLPlane plane);
+	void fitness(std::vector<DominantSquare> &domSquares, MLPlane plane);
 
 	// Returns the average purity of the whole population of dominant squares.
-	float gradeDominantSquares(vector<DominantSquare> &domSquares, MLPlane plane);
+	float gradeDominantSquares(std::vector<DominantSquare> &domSquares, MLPlane plane);
 
 	// Sorts the population (highest purity first, lowest purity last).
-	void sortTheDomSquarePop(vector<DominantSquare> &domSquares);
+	void sortTheDomSquarePop(std::vector<DominantSquare> &domSquares);
 
 	// Mutate one of the retained squares. (Can mutate left/right/top/bottom sides.)
 	void mutateRetainedSquare(DominantSquare &retainedSquare, ClassSquareLimits squareLimits);
 
 	// Crossover from the parent.
-	void crossoverFromParent(DominantSquare &retainedSquare, vector<DominantSquare> parents);
+	void crossoverFromParent(DominantSquare &retainedSquare, std::vector<DominantSquare> parents);
 
 	// Evolves the dominant squares (select, mutate, crossover).
-	vector<DominantSquare> evolveSquares(vector<DominantSquare> &domSquares, ClassSquareLimits squareLimits, float retain = 0.2, float select = 0.05, float mutate = 0.5);
-	
+	std::vector<DominantSquare> evolveSquares(std::vector<DominantSquare> &domSquares, ClassSquareLimits squareLimits, float retain = 0.2, float select = 0.05, float mutate = 0.5);
+
 	// ************ QUICKSORT IMPLEMENTATION ************
 	// NOTE: L and R are INCLUSIVE!!
 	// Example Initial Call: quicksort(domSquares, 0, domSquares.size()-1);
-	void quicksort(vector<DominantSquare> &domSquares, int L, int R, bool reverse);
-	void swap(vector<DominantSquare> &domSquare, int x, int y);
+	void quicksort(std::vector<DominantSquare> &domSquares, int L, int R, bool reverse);
+	void swap(std::vector<DominantSquare> &domSquare, int x, int y);
 	// *****************************************************
 	// *****************************************************
 
 	//for testing rules
 	void createRules();
-	double testRule();
-	bool checkIn(Rules rule, int &countFalse, int j, int i);
-	bool checkOut(Rules rule, int &countFalse, bool &checkNext, int j, int i);
+	//double testRule();
+	//bool checkIn(Rule rule, int &countFalse, int j, int i);
+	//bool checkOut(Rule rule, int &countFalse, bool &checkNext, int j, int i);
 };

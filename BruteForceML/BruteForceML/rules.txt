@@ -1,0 +1,24 @@
+Rule 1 for class 2 :
+**** If the point is in the
+2 dominant square of plane 4
+Then the point can be classified as part of class 2
+----------------------------------------------------------
+Rule 1 for class 4 :
+**** If the point is in the
+4 dominant square of plane 3
+Then the point can be classified as part of class 4
+----------------------------------------------------------
+Rule 2 for class 2 :
+**** If the point is in the
+2 dominant square of plane 4
+**** And If the point is NOT in the
+4 dominant square of plane 1
+Then the point can be classified as part of class 2
+----------------------------------------------------------
+Rule 2 for class 4 :
+**** If the point is in the
+4 dominant square of plane 3
+**** And If the point is NOT in the
+2 dominant square of plane 1
+Then the point can be classified as part of class 4
+----------------------------------------------------------
