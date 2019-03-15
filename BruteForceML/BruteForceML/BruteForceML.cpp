@@ -14,7 +14,7 @@ with the best (highest) purity level.
 // ------------ CONSTRUCTORS ------------
 // --------------------------------------
 //BruteForce::BruteForce(vector<DataClass> classesSet) : classes(classesSet){}
-BruteForce::BruteForce(string nameOfFile) : filename(nameOfFile)
+BruteForce::BruteForce(std::string nameOfFile) : filename(nameOfFile)
 {
 	readFile();
 	splitData(70, 30);
@@ -28,20 +28,20 @@ void BruteForce::readFile()
 {
 	// Read from file.
 	// Open the file and make sure it exists.
-	ifstream inputFile(filename);
+	std::ifstream inputFile(filename);
 	if (inputFile.fail())
 	{
-		cout << "Failed to open file: " << filename << endl;
+		std::cout << "Failed to open file: " << filename << std::endl;
 		return;
 	}
 
 	// Read the file and parse the integers into numList.
 	DataClass classData = DataClass();
 	int classID = -1;
-	string classname = "";
-	string currentClassName;
+	std::string classname = "";
+	std::string currentClassName;
 	bool isInClass = false;
-	string line;
+	std::string line;
 	while (!inputFile.eof())
 	{
 		// Read line from file and make sure it has something.
@@ -50,9 +50,9 @@ void BruteForce::readFile()
 			break;
 
 		// Tokenize the line.
-		istringstream stream(line);
-		vector<string> tokenized;
-		string token;
+		std::istringstream stream(line);
+		std::vector<std::string> tokenized;
+		std::string token;
 		while (getline(stream, token, ','))
 		{
 			tokenized.push_back(token);
@@ -97,7 +97,7 @@ void BruteForce::readFile()
 		}
 
 		// Extract data from tokenized string.
-		vector<float> data;
+		std::vector<float> data;
 		for (int i = 0; i < tokenized.size() - 1; i++)
 		{
 			data.push_back(stod(tokenized[i]));
@@ -106,7 +106,7 @@ void BruteForce::readFile()
 		// Add new data to the classes dataset.
 		for (int c = 0; c < classes.size(); c++)
 		{
-			if(classname.compare(classes[c].className) == 0)
+			if (classname.compare(classes[c].className) == 0)
 				classes[c].classDataset.push_back(data);
 		}
 	}
@@ -165,171 +165,135 @@ void BruteForce::splitData(float trainPercent, float testPercent)
 
 // ********************************************************************************
 // ********************************************************************************
-vector<MLPlane> BruteForce::run()
+std::vector<MLPlane> BruteForce::run()
 {
 	srand(time(0)); // Initalize rand() with random seed.
 
 	getNumOfAttributes();
 	//numOfAttributes = -1;
-	cout << "\nNum Of Attributes: " << numOfAttributes << endl;
+	std::cout << "\nNum Of Attributes: " << numOfAttributes << std::endl;
 	getNumOfPlanes();
-	cout << "Num Of Planes: " << numOfPlanesPossible << "\n\n";
+	std::cout << "Num Of Planes: " << numOfPlanesPossible << "\n\n";
 
 	// Can't really do anything with 1 attribute.
-	if(numOfAttributes < 2 || numOfPlanesPossible < 1)
+	if (numOfAttributes < 2 || numOfPlanesPossible < 1)
 		return dominantPlanes;
 
 	// Generate some planes.
-	for(int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 		assignPlanes();
 
 	// Set the limits of the dominant squares
 	// for each class in each plane.
 	setDomSquareLimits();
-	/*
-	cout << "****************************************************************\n\n";
-	for (int sP = 0; sP < setOfPlanes.size(); sP++)
-	{
-		cout << "PLANE SET: " << sP << endl;
-		for (int p = 0; p < setOfPlanes[sP].planes.size(); p++)
-		{
-			cout << "Plane: " << p << endl;
-			cout << "Points in the Plane: " << setOfPlanes[sP].planes[p].pointsInPlane.size() << endl;
-			cout << "Testing Points In Plane: " << setOfPlanes[sP].planes[p].trainingPointsInPlane.size() << endl;
-			cout << "Number of Dominant Squares Limits: " << setOfPlanes[sP].planes[p].limitsOfClasses.size() << endl;
-			cout << "Dom Square Limits Classnames:\n";
-
-			cout << "X Dimension: " << setOfPlanes[sP].planes[p].dimensionX << "\tY Dimension: " << setOfPlanes[sP].planes[p].dimensionY << endl;
-			cout << "\tX:\tY:\t\tClassname:" << endl;
-			for (int t = 0; t < setOfPlanes[sP].planes[p].trainingPointsInPlane.size(); t++)
-			{
-				float xVal = setOfPlanes[sP].planes[p].trainingPointsInPlane[t].x;
-				float yVal = setOfPlanes[sP].planes[p].trainingPointsInPlane[t].y;
-				string name = setOfPlanes[sP].planes[p].trainingPointsInPlane[t].className;
-				cout << (t+1) << "\t" << xVal << "\t" << yVal << "\t\t" << name << endl;
-			}
-			
-			for (int dM = 0; dM < setOfPlanes[sP].planes[p].limitsOfClasses.size(); dM++)
-			{
-				cout << setOfPlanes[sP].planes[p].limitsOfClasses[dM].className << "\t\t";
-				cout << "Dominant Square Limits Points:" << endl;
-				float xMinLim = setOfPlanes[sP].planes[p].limitsOfClasses[dM].pointBL.x;
-				float xMaxLim = setOfPlanes[sP].planes[p].limitsOfClasses[dM].pointBR.x;
-				float yMinLim = setOfPlanes[sP].planes[p].limitsOfClasses[dM].pointBL.y;
-				float yMaxLim = setOfPlanes[sP].planes[p].limitsOfClasses[dM].pointTL.y;
-				cout << "Top Left:    [" << xMinLim << " , " << yMaxLim << "]\t\t";
-				cout << "Top Right:    [" << xMaxLim << " , " << yMaxLim << "]\n";
-				cout << "Bottom Left: [" << xMinLim << " , " << yMinLim << "]\t\t";
-				cout << "Bottom Right: [" << xMaxLim << " , " << yMinLim << "]\n\n";
-			}
-			
-			cout << "\n\n";
-		}
-		cout << "****************************************************************\n\n\n\n";
-	}
-	*/
-	/*
-	cout << "Size of Classes: " << classes.size() << endl;
-	cout << "****************************************************************\n\n";
-	for (int c = 0; c < classes.size(); c++)
-	{
-		cout << "Classname: " << classes[c].className << endl;
-		cout << "Size of dataset: " << classes[c].classDataset.size() << endl;
-		cout << "Size of Multidimensional Point: " << classes[c].classDataset[0].size() << endl;
-		for (int dS = 0; dS < 10; dS++)
-		{
-			for (float a : classes[c].classDataset[dS])
-				cout << a << "  ";
-			cout << "\n-------------------\n";
-		}
-		cout << "\n\n";
-	}
-	*/
 	
 
 	// Initiate the genetic algorithm with a population size to
 	// find dominant squares of each class in each plane.
 	geneticAlgorithm(25);
 
-	/*
-	// DEBUGGING.
-	cout << "****************************************************************\n\n";
-	for (int sP = 0; sP < setOfPlanes.size(); sP++)
-	{
-		cout << "PLANE SET: " << sP << endl;
-		for (int p = 0; p < setOfPlanes[sP].planes.size(); p++)
-		{
-			cout << "Plane: " << p << endl;
-			cout << "Number of Dominant Squares: " << setOfPlanes[sP].planes[p].domSquares.size() << endl;
-			cout << "Dom Square Classes:\n";
-			for (int dM = 0; dM < setOfPlanes[sP].planes[p].domSquares.size(); dM++)
-			{
-				cout << setOfPlanes[sP].planes[p].domSquares[dM].className << "\t\t";
-				cout << "Purity: " << setOfPlanes[sP].planes[p].domSquares[dM].purity << "\t\t";
-				cout << "Class Points in Square: " << setOfPlanes[sP].planes[p].domSquares[dM].classPointsInSquare << "\t\t";
-				cout << "Total Points in Square: " << setOfPlanes[sP].planes[p].domSquares[dM].totalPointsInSquare << endl;
-				cout << "Dominant Square Points:" << endl;
-				cout << "Top Left:    [" << setOfPlanes[sP].planes[p].domSquares[dM].pointTL.x << " , " << setOfPlanes[sP].planes[p].domSquares[dM].pointTL.y << "]\t\t";
-				cout << "Top Right:    [" << setOfPlanes[sP].planes[p].domSquares[dM].pointTR.x << " , " << setOfPlanes[sP].planes[p].domSquares[dM].pointTR.y << "]\n";
-				cout << "Bottom Left: [" << setOfPlanes[sP].planes[p].domSquares[dM].pointBL.x << " , " << setOfPlanes[sP].planes[p].domSquares[dM].pointBL.y << "]\t\t";
-				cout << "Bottom Right: [" << setOfPlanes[sP].planes[p].domSquares[dM].pointBR.x << " , " << setOfPlanes[sP].planes[p].domSquares[dM].pointBR.y << "]\n\n";
-			}
-			cout << "\n\n";
-		}
-		cout << "****************************************************************\n\n\n\n";
-	}*/
-	
+
+
 	findDominantPlanes();
-	cout << "-------------------------------------------\n";
-	cout << "DOMINANT PLANES ---------------------------\n\n";
+	std::cout << "-------------------------------------------\n";
+	std::cout << "DOMINANT PLANES ---------------------------\n\n";
 	for (int dP = 0; dP < dominantPlanes.size(); dP++)
 	{
-		cout << "Plane: " << dP << "\t\tDimensions: [" << dominantPlanes[dP].dimensionX << ", " << dominantPlanes[dP].dimensionY << "]" << endl;
-		cout << "Number of Dominant Squares: " << dominantPlanes[dP].domSquares.size() << endl;
-		cout << "Dom Square Classes:\n";
+		std::cout << "Plane: " << dP << "\t\tDimensions: [" << dominantPlanes[dP].dimensionX << ", " << dominantPlanes[dP].dimensionY << "]" << std::endl;
+		std::cout << "Number of Dominant Squares: " << dominantPlanes[dP].domSquares.size() << std::endl;
+		std::cout << "Dom Square Classes:\n";
 		for (int dS = 0; dS < dominantPlanes[dP].domSquares.size(); dS++)
 		{
-			cout << dominantPlanes[dP].domSquares[dS].className << "\t\t";
-			cout << "Purity: " << dominantPlanes[dP].domSquares[dS].purity << "\t\t";
-			cout << "Class Points in Square: " << dominantPlanes[dP].domSquares[dS].classPointsInSquare << "\t\t";
-			cout << "Total Points in Square: " << dominantPlanes[dP].domSquares[dS].totalPointsInSquare << endl;
-			cout << "Dominant Square Points:" << endl;
-			cout << "Top Left:    [" << dominantPlanes[dP].domSquares[dS].pointTL.x << " , " << dominantPlanes[dP].domSquares[dS].pointTL.y << "]\t\t";
-			cout << "Top Right:    [" << dominantPlanes[dP].domSquares[dS].pointTR.x << " , " << dominantPlanes[dP].domSquares[dS].pointTR.y << "]\n";
-			cout << "Bottom Left: [" << dominantPlanes[dP].domSquares[dS].pointBL.x << " , " << dominantPlanes[dP].domSquares[dS].pointBL.y << "]\t\t";
-			cout << "Bottom Right: [" << dominantPlanes[dP].domSquares[dS].pointBR.x << " , " << dominantPlanes[dP].domSquares[dS].pointBR.y << "]\n\n";
+			std::cout << dominantPlanes[dP].domSquares[dS].className << "\t\t";
+			std::cout << "Purity: " << dominantPlanes[dP].domSquares[dS].purity << "\t\t";
+			std::cout << "Class Points in Square: " << dominantPlanes[dP].domSquares[dS].classPointsInSquare << "\t\t";
+			std::cout << "Total Points in Square: " << dominantPlanes[dP].domSquares[dS].totalPointsInSquare << std::endl;
+			std::cout << "Dominant Square Points:" << std::endl;
+			std::cout << "Top Left:    [" << dominantPlanes[dP].domSquares[dS].pointTL.x << " , " << dominantPlanes[dP].domSquares[dS].pointTL.y << "]\t\t";
+			std::cout << "Top Right:    [" << dominantPlanes[dP].domSquares[dS].pointTR.x << " , " << dominantPlanes[dP].domSquares[dS].pointTR.y << "]\n";
+			std::cout << "Bottom Left: [" << dominantPlanes[dP].domSquares[dS].pointBL.x << " , " << dominantPlanes[dP].domSquares[dS].pointBL.y << "]\t\t";
+			std::cout << "Bottom Right: [" << dominantPlanes[dP].domSquares[dS].pointBR.x << " , " << dominantPlanes[dP].domSquares[dS].pointBR.y << "]\n\n";
 		}
 	}
-	
+
 	// Save the dominant squares to file.
 	saveDominantSquaresToFile();
 
 	// Save the dominant squares from each plane into a list in proper order (by class).
 	saveDominantSquaresToList();
-	cout << "\n\n----- Dominant Squares List -----\n";
+	std::cout << "\n\n----- Dominant Squares List -----\n";
 	for (int dS = 0; dS < dominantSquares.size(); dS++)
 	{
 		for (int s = 0; s < dominantSquares[dS].size(); s++)
 		{
-			cout << "Classname: " << dominantSquares[dS][s].className << endl;
-			cout << "Top Left:    [" << dominantSquares[dS][s].pointTL.x << " , " << dominantSquares[dS][s].pointTL.y << "]\t\t";
-			cout << "Top Right:    [" << dominantSquares[dS][s].pointTR.x << " , " << dominantSquares[dS][s].pointTR.y << "]\n";
-			cout << "Bottom Left: [" << dominantSquares[dS][s].pointBL.x << " , " << dominantSquares[dS][s].pointBL.y << "]\t\t";
-			cout << "Bottom Right: [" << dominantSquares[dS][s].pointBR.x << " , " << dominantSquares[dS][s].pointBR.y << "]\n\n";
+			std::cout << "Classname: " << dominantSquares[dS][s].className << std::endl;
+			std::cout << "Top Left:    [" << dominantSquares[dS][s].pointTL.x << " , " << dominantSquares[dS][s].pointTL.y << "]\t\t";
+			std::cout << "Top Right:    [" << dominantSquares[dS][s].pointTR.x << " , " << dominantSquares[dS][s].pointTR.y << "]\n";
+			std::cout << "Bottom Left: [" << dominantSquares[dS][s].pointBL.x << " , " << dominantSquares[dS][s].pointBL.y << "]\t\t";
+			std::cout << "Bottom Right: [" << dominantSquares[dS][s].pointBR.x << " , " << dominantSquares[dS][s].pointBR.y << "]\n\n";
 		}
-		cout << "---------------------------------\n\n";
+		std::cout << "---------------------------------\n\n";
 	}
 
 	// Save the plane dimensions as combinations and keep them in a vector list.
 	savePlaneDimensionCombinations();
-	cout << "\n----- Plane Dimensions Saved -----\nX:\tY:\n";
+	std::cout << "\n----- Plane Dimensions Saved -----\nX:\tY:\n";
 	for (int pD = 0; pD < planeDimensions.size(); pD++)
-		cout << planeDimensions[pD][0] << "\t" << planeDimensions[pD][1] << endl;
-	cout << "\n\n";
+		std::cout << planeDimensions[pD][0] << "\t" << planeDimensions[pD][1] << std::endl;
+	std::cout << "\n\n";
 
-	//testRules();
-	testRule();
-	
+	// Create the rules.
+	createRules();
+	std::cout << "\n----- Rules Saved -----\n";
+	std::cout << "Number of Rules: " << rules.size() << std::endl;
+	std::cout << "-----------------------\n";
+	for (int r = 0; r < rules.size(); r++)
+	{
+		std::cout << "Rule number: " << rules[r].ruleNum << std::endl;
+		std::cout << "Rule classname: " << rules[r].className << std::endl;
+		std::cout << "Rule Accuracy: " << rules[r].accuracy << std::endl;
+		std::cout << "Number of classes of points in Rule: " << rules[r].pointsInRule.size() << std::endl;
+		std::cout << "Number of In dominant squares: " << rules[r].in.size() << "\t\t\tNumber of Out dominant squares: " << rules[r].out.size() << std::endl;
+		std::cout << "Dominant Square Purities in In:\t";
+		for (int rl = 0; rl < rules[r].in.size(); rl++)
+			std::cout << rules[r].in[rl].purity << "\t";
+		std::cout << "\t\t";
+		std::cout << "Dominant Square Purities in Out:\t";
+		for (int rl = 0; rl < rules[r].out.size(); rl++)
+			std::cout << rules[r].out[rl].purity << "\t";
+		std::cout << std::endl;
+
+		std::cout << "Dominant Square Plane Index In:\t";
+		for (int rl = 0; rl < rules[r].in.size(); rl++)
+			std::cout << rules[r].in[rl].planeIndex << "\t";
+		std::cout << "\t\t";
+		std::cout << "Dominant Square Plane Index Out:\t";
+		for (int rl = 0; rl < rules[r].out.size(); rl++)
+			std::cout << rules[r].out[rl].planeIndex << "\t";
+		std::cout << std::endl;
+
+		// For all the classes of points.
+		for (int pC = 0; pC < rules[r].pointsInRule.size(); pC++)
+		{
+			std::cout << "------------\n";
+			std::cout << "ClassName: " << rules[r].pointsInRule[pC].className << "\t\t";
+			std::cout << "Number of Points from Class: " << rules[r].pointsInRule[pC].classDataset.size() << std::endl;
+			for (int p = 0; p < rules[r].pointsInRule[pC].classDataset.size(); p++)
+			{
+				for (int dP = 0; dP < rules[r].pointsInRule[pC].classDataset[p].size(); dP++)
+					std::cout << rules[r].pointsInRule[pC].classDataset[p][dP] << "\t";
+				std::cout << "\n\n";
+			}
+			std::cout << std::endl;
+		}
+		std::cout << "\n-----------------------\n";
+	}
+
+	// Save rules to file.
+	saveRulesToFile();
+
+	//testRule();
+
 	return dominantPlanes; // THIS IS THE ACTUAL RETURN VALUE DO NOT DELETE!!
 }
 
@@ -397,7 +361,7 @@ void BruteForce::assignPlanes()
 			{
 				// Make sure that the additional attribute doesn't equal
 				// the first attribute of the plane.
-				while(addAttribute == currPlane.dimensionX)
+				while (addAttribute == currPlane.dimensionX)
 					addAttribute = rand() % numOfAttributes;
 
 				currPlane.dimensionY = addAttribute;	// Assign Attribute
@@ -417,7 +381,7 @@ void BruteForce::assignPlanes()
 				for (int cD = 0; cD < tempClass.classDataset.size(); cD++)
 				{
 					// Loop through all the multidimensional points of every class.
-					vector<float> data = tempClass.classDataset[cD];
+					std::vector<float> data = tempClass.classDataset[cD];
 					currPlane.xCoordinates.push_back(data[currPlane.dimensionX]);
 					currPlane.yCoordinates.push_back(data[currPlane.dimensionY]);
 
@@ -437,7 +401,7 @@ void BruteForce::assignPlanes()
 				for (int cD = 0; cD < tempTrainingClass.classDataset.size(); cD++)
 				{
 					// Loop through all the multidimensional points of every class for the training set.
-					vector<float> data = tempTrainingClass.classDataset[cD];
+					std::vector<float> data = tempTrainingClass.classDataset[cD];
 
 					// Make a point with combined x,y values.
 					MLPoint point;
@@ -455,7 +419,7 @@ void BruteForce::assignPlanes()
 	// If not the first set of Planes, then randomize attribute pairs.
 	else
 	{
-		vector<int> alreadyChosen;
+		std::vector<int> alreadyChosen;
 		int k = rand() % numOfAttributes;
 		for (int i = 0; i < numOfPlanesPossible; i++)
 		{
@@ -499,7 +463,7 @@ void BruteForce::assignPlanes()
 				for (int cD = 0; cD < tempClass.classDataset.size(); cD++)
 				{
 					// Loop through all the multidimensional points of every class.
-					vector<float> data = tempClass.classDataset[cD];
+					std::vector<float> data = tempClass.classDataset[cD];
 					currPlane.xCoordinates.push_back(data[currPlane.dimensionX]);
 					currPlane.yCoordinates.push_back(data[currPlane.dimensionY]);
 
@@ -519,7 +483,7 @@ void BruteForce::assignPlanes()
 				for (int cD = 0; cD < tempTrainingClass.classDataset.size(); cD++)
 				{
 					// Loop through all the multidimensional points of every class for the training set.
-					vector<float> data = tempTrainingClass.classDataset[cD];
+					std::vector<float> data = tempTrainingClass.classDataset[cD];
 
 					// Make a point with combined x,y values.
 					MLPoint point;
@@ -546,7 +510,7 @@ void BruteForce::setDomSquareLimits()
 	for (int i = 0; i < classes.size() && i < 2; i++) // i < 2 is Classes Limiter!!
 	{
 		DataClass classData = classes[i];
-		
+
 		// For each Set of Planes.
 		for (int ps = 0; ps < setOfPlanes.size(); ps++)
 		{
@@ -571,7 +535,7 @@ void BruteForce::setDomSquareLimits()
 				// Determine the min/max X and Y for the two attributes.
 				for (int d = 0; d < classData.classDataset.size(); d++)
 				{
-					vector<float> data = classData.classDataset[d];
+					std::vector<float> data = classData.classDataset[d];
 					if (data[attr1] < xMin) // Determine xMin.
 						xMin = data[attr1];
 					if (data[attr1] > xMax) // Determine xMax.
@@ -586,14 +550,14 @@ void BruteForce::setDomSquareLimits()
 				// If xMin and xMax are equale.
 				if (xMin == xMax)
 				{
-					xMin -= 0.5;
-					xMax += 0.5;
+					xMin -= 0.05;
+					xMax += 0.05;
 				}
 				// If yMin and yMax are equal.
 				if (yMin == yMax)
 				{
-					yMin -= 0.5;
-					yMax += 0.5;
+					yMin -= 0.05;
+					yMax += 0.05;
 				}
 
 				// Set the coordinate Points.
@@ -676,7 +640,7 @@ void BruteForce::calculatePurity(DominantSquare &box, MLPlane plane)
 // ********************************************************************************
 // ********************************************************************************
 // Using testing set of points.
-void BruteForce::calculatePurity(DominantSquare &box, vector<MLPoint> points)
+void BruteForce::calculatePurity(DominantSquare &box, std::vector<MLPoint> points)
 {
 	float xMin = box.pointBL.x;
 	float xMax = box.pointBR.x;
@@ -742,7 +706,7 @@ void BruteForce::findDominantSquares(MLPlane pln)
 
 		while (box.purity < 80 && box.classPointsInSquare > 0)
 		{
-			cout << box.purity << endl;
+			std::cout << box.purity << std::endl;
 			count = count % 4;
 			switch (count)
 			{
@@ -776,15 +740,15 @@ void BruteForce::findDominantSquares(MLPlane pln)
 				break;
 			}
 
-			cout << "Class Points In Square: " << box.classPointsInSquare << "\t\t";
-			cout << "Total Points In Square: " << box.totalPointsInSquare << "\t\t";
-			cout << "Total Points In Plane: " << pln.pointsInPlane.size() << endl;
-			
-			cout << "Top Left:  [" << box.pointTL.x << " , " << box.pointTL.y << "]\t\t";
-			cout << "Top Right: [" << box.pointTR.x << " , " << box.pointTR.y << "]\n";
-			cout << "Bot Left:  [" << box.pointBL.x << " , " << box.pointBL.y << "]\t\t";
-			cout << "Bot Right: [" << box.pointBR.x << " , " << box.pointBR.y << "]\n\n";
-			
+			std::cout << "Class Points In Square: " << box.classPointsInSquare << "\t\t";
+			std::cout << "Total Points In Square: " << box.totalPointsInSquare << "\t\t";
+			std::cout << "Total Points In Plane: " << pln.pointsInPlane.size() << std::endl;
+
+			std::cout << "Top Left:  [" << box.pointTL.x << " , " << box.pointTL.y << "]\t\t";
+			std::cout << "Top Right: [" << box.pointTR.x << " , " << box.pointTR.y << "]\n";
+			std::cout << "Bot Left:  [" << box.pointBL.x << " , " << box.pointBL.y << "]\t\t";
+			std::cout << "Bot Right: [" << box.pointBR.x << " , " << box.pointBR.y << "]\n\n";
+
 		}
 	}
 }
@@ -799,19 +763,19 @@ void BruteForce::findDominantPlanes()
 	int bestPurityIndex = 0;
 
 	// Keep track of the average purity of all the sets of planes.
-	vector<double> avgPlanesetPurity;
+	std::vector<double> avgPlanesetPurity;
 
 	// Calculate the average purity of all planes per plane set in all setsOfPlanes.
 	for (int pS = 0; pS < setOfPlanes.size(); pS++)
 	{
 		// This will hold the total purity of dominant squares for each individual
 		// class in all planes.
-		vector<double> totalClassPurities(classes.size());
-		vector<double> avgClassPurity;
+		std::vector<double> totalClassPurities(classes.size());
+		std::vector<double> avgClassPurity;
 		double totalPurityOfAllClasses = 0;
 
 		// Get the total purities from all classes in all planes of this Plane set.
-		vector<MLPlane> planes = setOfPlanes[pS].planes;
+		std::vector<MLPlane> planes = setOfPlanes[pS].planes;
 		for (int p = 0; p < planes.size(); p++)
 		{
 			MLPlane plane = planes[p];
@@ -835,16 +799,16 @@ void BruteForce::findDominantPlanes()
 	float bestPurity = 0.0;
 	for (int aPSP = 0; aPSP < avgPlanesetPurity.size(); aPSP++)
 	{
-		cout << "AvgPlanesetPurity Of " << aPSP << ": " << avgPlanesetPurity[aPSP] << "\t\t";
+		std::cout << "AvgPlanesetPurity Of " << aPSP << ": " << avgPlanesetPurity[aPSP] << "\t\t";
 		if (avgPlanesetPurity[aPSP] > bestPurity)
 		{
 			bestPurityIndex = aPSP;
 			bestPurity = avgPlanesetPurity[aPSP];
 		}
-		cout << "Best Planeset Purity So Far: " << bestPurity << endl;
+		std::cout << "Best Planeset Purity So Far: " << bestPurity << std::endl;
 	}
 
-	cout << "Planes Set " << bestPurityIndex << " has the Best Purity Dominant Squares!\n\n";
+	std::cout << "Planes Set " << bestPurityIndex << " has the Best Purity Dominant Squares!\n\n";
 	// Set the dominant set of planes (best purity of dominant squares).
 	dominantPlanes = setOfPlanes[bestPurityIndex].planes;
 }
@@ -856,11 +820,11 @@ void BruteForce::findDominantPlanes()
 int BruteForce::saveDominantSquaresToFile()
 {
 	// Create the text file.
-	ofstream domSquaresFile("squares.txt");
+	std::ofstream domSquaresFile("squares.txt");
 	if (domSquaresFile.fail())
 	{
-		cout << "Failed to create file: " << "squares.txt" << endl;
-		cout << "**** Terminating Problem Execution ****\n\n";
+		std::cout << "Failed to create file: " << "squares.txt" << std::endl;
+		std::cout << "**** Terminating Problem Execution ****\n\n";
 		return -1;
 	}
 
@@ -869,20 +833,20 @@ int BruteForce::saveDominantSquaresToFile()
 	{
 		for (int dS = 0; dS < dominantPlanes[dP].domSquares.size(); dS++)
 		{
-			string line = "";
+			std::string line = "";
 
 			// Add Plane Index.
-			line += to_string(dP) + ",";
+			line += std::to_string(dP) + ",";
 
 			// Add the yMin, yMax, xMin, xMax.
-			line += to_string(dominantPlanes[dP].domSquares[dS].pointBL.y) + ",";
-			line += to_string(dominantPlanes[dP].domSquares[dS].pointTL.y) + ",";
-			line += to_string(dominantPlanes[dP].domSquares[dS].pointBL.x) + ",";
-			line += to_string(dominantPlanes[dP].domSquares[dS].pointBR.x) + "\n";
+			line += std::to_string(dominantPlanes[dP].domSquares[dS].pointBL.y) + ",";
+			line += std::to_string(dominantPlanes[dP].domSquares[dS].pointTL.y) + ",";
+			line += std::to_string(dominantPlanes[dP].domSquares[dS].pointBL.x) + ",";
+			line += std::to_string(dominantPlanes[dP].domSquares[dS].pointBR.x) + "\n";
 
 			// Save that line to file.
 			domSquaresFile << line;
-			cout << line;
+			std::cout << line;
 		}
 	}
 
@@ -899,7 +863,7 @@ void BruteForce::saveDominantSquaresToList()
 	// Initialize the dominantSquares list with blank lists of dominant squares.
 	for (int dS = 0; dS < dominantPlanes[0].domSquares.size(); dS++)
 	{
-		vector<DominantSquare> squares;
+		std::vector<DominantSquare> squares;
 		dominantSquares.push_back(squares);
 	}
 
@@ -921,12 +885,66 @@ void BruteForce::savePlaneDimensionCombinations()
 	// For every plane, save the dimension combinations.
 	for (int p = 0; p < dominantPlanes.size(); p++)
 	{
-		vector<float> dimensionCombo;
+		std::vector<float> dimensionCombo;
 		dimensionCombo.push_back(dominantPlanes[p].dimensionX);
 		dimensionCombo.push_back(dominantPlanes[p].dimensionY);
 
 		planeDimensions.push_back(dimensionCombo);
 	}
+}
+
+// ********************************************************************************
+// ********************************************************************************
+// Save the created rules to file rules.txt.
+int BruteForce::saveRulesToFile()
+{
+	// Create the text file.
+	std::ofstream rulesFile("rules.txt");
+	if (rulesFile.fail())
+	{
+		std::cout << "Failed to create file: " << "squares.txt" << std::endl;
+		std::cout << "**** Terminating Problem Execution ****\n\n";
+		return -1;
+	}
+
+	// Write to text file.
+	for (int r = 0; r < rules.size(); r++)
+	{
+		std::string line = "";
+
+		// Add rule number and classname.
+		line += "Rule " + std::to_string(rules[r].ruleNum) + " for class " + rules[r].className + " :\n";
+
+		// Add the In squares.
+		if (rules[r].in.size() > 0)
+		{
+			line += "**** If the point is in the\n";
+			for (int sI = 0; sI < rules[r].in.size(); sI++)
+			{
+				line += rules[r].in[sI].className + " dominant square of plane " + std::to_string(rules[r].in[sI].planeIndex + 1) + "\n";
+			}
+		}
+
+		// Add the Out squares.
+		if (rules[r].out.size() > 0)
+		{
+			line += "**** And If the point is NOT in the\n";
+			for (int sO = 0; sO < rules[r].out.size(); sO++)
+			{
+				line += rules[r].out[sO].className + " dominant square of plane " + std::to_string(rules[r].out[sO].planeIndex + 1) + "\n";
+			}
+		}
+
+		line += "Then the point can be classified as part of class " + rules[r].className;
+		line += "\n----------------------------------------------------------\n";
+
+		// Save that line to file.
+		rulesFile << line;
+	}
+
+	// Close text file.
+	rulesFile.close();
+	return 0;
 }
 
 
@@ -943,7 +961,7 @@ void BruteForce::geneticAlgorithm(int popSize)
 			for (int lim = 0; lim < setOfPlanes[sP].planes[p].limitsOfClasses.size(); lim++)
 			{
 				// Create the population of dominant squares based on the limits of classes.
-				vector<DominantSquare> domSquares = generateRandomDominantSquares(popSize, setOfPlanes[sP].planes[p].limitsOfClasses[lim]);
+				std::vector<DominantSquare> domSquares = generateRandomDominantSquares(popSize, setOfPlanes[sP].planes[p].limitsOfClasses[lim]);
 
 				// Grade the original population and get its average purity.
 				float avgPurity = gradeDominantSquares(domSquares, setOfPlanes[sP].planes[p]);
@@ -968,7 +986,7 @@ void BruteForce::geneticAlgorithm(int popSize)
 				// Set the x and y dimensions of the plane in the dominant square.
 				domSquares[0].dimensionX = setOfPlanes[sP].planes[p].dimensionX;
 				domSquares[0].dimensionY = setOfPlanes[sP].planes[p].dimensionY;
-            
+
 				// Set the xMin, xMax, yMin, yMax of the best dominant square in population.
 				domSquares[0].xMin = domSquares[0].pointBL.x;
 				domSquares[0].xMax = domSquares[0].pointBR.x;
@@ -984,7 +1002,7 @@ void BruteForce::geneticAlgorithm(int popSize)
 
 // ********************************************************************************
 // Generates a population of dominant squares within the limits of the squareLimits classname.
-vector<DominantSquare> BruteForce::generateRandomDominantSquares(int numOfSquares, ClassSquareLimits squareLimits)
+std::vector<DominantSquare> BruteForce::generateRandomDominantSquares(int numOfSquares, ClassSquareLimits squareLimits)
 {
 	// Dominant Square limits.
 	float xMinLim = squareLimits.pointBL.x;
@@ -993,18 +1011,18 @@ vector<DominantSquare> BruteForce::generateRandomDominantSquares(int numOfSquare
 	float yMaxLim = squareLimits.pointTL.y;
 
 	// Initialize the Dominant Square Population.
-	vector<DominantSquare> domSquares;
+	std::vector<DominantSquare> domSquares;
 
 	// Generate a random dominant squares.
 	for (int i = 0; i < numOfSquares; i++)
 	{
-		
+
 		DominantSquare domSquare;
 		domSquare.className = squareLimits.className;	// Set classname.
 
 		// Generate random x and y min/max points for dominant square.
 		float xMin = xMaxLim + 1;
-		while(xMin >= (xMaxLim - 0.5))
+		while (xMin >= (xMaxLim - 0.5))
 			xMin = xMinLim + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (xMaxLim - xMinLim)));
 
 		float xMax = xMin - 1;
@@ -1012,7 +1030,7 @@ vector<DominantSquare> BruteForce::generateRandomDominantSquares(int numOfSquare
 			xMax = xMinLim + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (xMaxLim - xMinLim)));
 
 		float yMin = yMaxLim + 1;
-		while(yMin >= (yMaxLim - 0.5))
+		while (yMin >= (yMaxLim - 0.5))
 			yMin = yMinLim + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (yMaxLim - yMinLim)));
 
 		float yMax = yMin - 1;
@@ -1050,7 +1068,7 @@ vector<DominantSquare> BruteForce::generateRandomDominantSquares(int numOfSquare
 
 // ********************************************************************************
 // Calculates the purity of the population of dominant squares.
-void BruteForce::fitness(vector<DominantSquare> &domSquares, MLPlane plane)
+void BruteForce::fitness(std::vector<DominantSquare> &domSquares, MLPlane plane)
 {
 	for (int i = 0; i < domSquares.size(); i++)
 		calculatePurity(domSquares[i], plane.trainingPointsInPlane); // Using training set of points.
@@ -1058,7 +1076,7 @@ void BruteForce::fitness(vector<DominantSquare> &domSquares, MLPlane plane)
 
 // ********************************************************************************
 // Returns the average purity of the whole population of dominant squares.
-float BruteForce::gradeDominantSquares(vector<DominantSquare> &domSquares, MLPlane plane)
+float BruteForce::gradeDominantSquares(std::vector<DominantSquare> &domSquares, MLPlane plane)
 {
 	// First calculate the fitness of each dominant square in the population.
 	fitness(domSquares, plane);
@@ -1078,7 +1096,7 @@ float BruteForce::gradeDominantSquares(vector<DominantSquare> &domSquares, MLPla
 
 // ********************************************************************************
 // Sorts the population (highest purity first, lowest purity last).
-void BruteForce::sortTheDomSquarePop(vector<DominantSquare> &domSquares)
+void BruteForce::sortTheDomSquarePop(std::vector<DominantSquare> &domSquares)
 {
 	quicksort(domSquares, 0, domSquares.size() - 1, true);
 }
@@ -1091,15 +1109,15 @@ void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare, ClassSquar
 	// 0 = Transpose (Change side dimensions), 1 = move dominant square.
 	int moveOrTranspose = rand() % 2;
 
+	// Dominant Square limits.
+	float xMinLim = squareLimits.pointBL.x;
+	float xMaxLim = squareLimits.pointBR.x;
+	float yMinLim = squareLimits.pointBL.y;
+	float yMaxLim = squareLimits.pointTL.y;
+
 	// Transpose a random side of the dominant square by 10%.
 	if (moveOrTranspose == 0)
 	{
-		// Dominant Square limits.
-		float xMinLim = squareLimits.pointBL.x;
-		float xMaxLim = squareLimits.pointBR.x;
-		float yMinLim = squareLimits.pointBL.y;
-		float yMaxLim = squareLimits.pointTL.y;
-
 		// Randomly generate a new poinnt within the limits.
 		float newX = xMinLim + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (xMaxLim - xMinLim)));
 		float newY = yMinLim + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (yMaxLim - yMinLim)));
@@ -1143,7 +1161,7 @@ void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare, ClassSquar
 			retainedSquare.pointTL.x = newX; // Change x of top left point.
 			retainedSquare.pointBR.y = newY; // Change y of bottom right point.
 		}
-		
+
 	}
 	// Move dominant square by 10% in a random direction.
 	else
@@ -1162,6 +1180,20 @@ void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare, ClassSquar
 			retainedSquare.pointBL.x -= difference;
 			retainedSquare.pointTR.x -= difference;
 			retainedSquare.pointBR.x -= difference;
+
+			// Check limitations of square
+			// If the x value goes outside dominant square limits.
+			if (retainedSquare.pointBL.x < xMinLim)
+			{
+				retainedSquare.pointBL.x = xMinLim;
+				retainedSquare.pointTL.x = xMinLim;
+			}
+			// If the two x values of the dominant square are the same.
+			if (retainedSquare.pointBR.x == retainedSquare.pointBL.x)
+			{
+				retainedSquare.pointBR.x += 0.05;
+				retainedSquare.pointTR.x += 0.05;
+			}
 			break;
 			// Move Up.
 		case 1:
@@ -1170,6 +1202,20 @@ void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare, ClassSquar
 			retainedSquare.pointTR.y += difference;
 			retainedSquare.pointBL.y += difference;
 			retainedSquare.pointBR.y += difference;
+
+			// Check limitations of square
+			// If the y value goes outside dominant square limits.
+			if (retainedSquare.pointTL.y > yMaxLim)
+			{
+				retainedSquare.pointTR.y = yMaxLim;
+				retainedSquare.pointTL.y = yMaxLim;
+			}
+			// If the two y values of the dominant square are the same.
+			if (retainedSquare.pointBL.y == retainedSquare.pointTL.y)
+			{
+				retainedSquare.pointBL.y -= 0.05;
+				retainedSquare.pointBR.y -= 0.05;
+			}
 			break;
 			// Move Right.
 		case 2:
@@ -1178,6 +1224,20 @@ void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare, ClassSquar
 			retainedSquare.pointBL.x += difference;
 			retainedSquare.pointTR.x += difference;
 			retainedSquare.pointBR.x += difference;
+
+			// Check limitations of square
+			// If the x value goes outside dominant square limits.
+			if (retainedSquare.pointBR.x > xMaxLim)
+			{
+				retainedSquare.pointBR.x = xMaxLim;
+				retainedSquare.pointTR.x = xMaxLim;
+			}
+			// If the two x values of the dominant square are the same.
+			if (retainedSquare.pointBL.x == retainedSquare.pointBR.x)
+			{
+				retainedSquare.pointBL.x -= 0.05;
+				retainedSquare.pointTL.x -= 0.05;
+			}
 			break;
 			// Move Down.
 		case 3:
@@ -1186,6 +1246,20 @@ void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare, ClassSquar
 			retainedSquare.pointTR.y -= difference;
 			retainedSquare.pointBL.y -= difference;
 			retainedSquare.pointBR.y -= difference;
+
+			// Check limitations of square
+			// If the y value goes outside dominant square limits.
+			if (retainedSquare.pointBL.y < yMinLim)
+			{
+				retainedSquare.pointBR.y = yMinLim;
+				retainedSquare.pointBL.y = yMinLim;
+			}
+			// If the two y values of the dominant square are the same.
+			if (retainedSquare.pointTL.y == retainedSquare.pointBL.y)
+			{
+				retainedSquare.pointTL.y += 0.05;
+				retainedSquare.pointTR.y += 0.05;
+			}
 			break;
 		}
 	}
@@ -1193,7 +1267,7 @@ void BruteForce::mutateRetainedSquare(DominantSquare &retainedSquare, ClassSquar
 
 // ********************************************************************************
 // Crossover from the parent.
-void BruteForce::crossoverFromParent(DominantSquare &retainedSquare, vector<DominantSquare> parents)
+void BruteForce::crossoverFromParent(DominantSquare &retainedSquare, std::vector<DominantSquare> parents)
 {
 	// Randomly choose which parent to crossover from.
 	int whichParent = rand() % parents.size();
@@ -1213,7 +1287,7 @@ void BruteForce::crossoverFromParent(DominantSquare &retainedSquare, vector<Domi
 	case 0:
 		// Crossover the minimum x axis to retainedSquare.
 		xMin = parents[whichParent].pointBL.x;
-		
+
 		// If the minimum x axis of parent is greater than the
 		// maximum x axis of retainedSquare, update the maximum
 		// x axis of retainedSquare.
@@ -1278,15 +1352,15 @@ void BruteForce::crossoverFromParent(DominantSquare &retainedSquare, vector<Domi
 
 // ********************************************************************************
 // Evolves the dominant squares (select, mutate, crossover).
-vector<DominantSquare> BruteForce::evolveSquares(vector<DominantSquare> &domSquares, ClassSquareLimits squareLimits, float retain, float select, float mutate)
+std::vector<DominantSquare> BruteForce::evolveSquares(std::vector<DominantSquare> &domSquares, ClassSquareLimits squareLimits, float retain, float select, float mutate)
 {
 	// Sort the dominant squares population (highest fitness first).
 	sortTheDomSquarePop(domSquares);
 
 	// How much of the original population to retain.
 	int retainLength = domSquares.size() * retain;
-	vector<DominantSquare> parents;
-	vector<DominantSquare> retained;
+	std::vector<DominantSquare> parents;
+	std::vector<DominantSquare> retained;
 
 	// Parents are the first two options in the population.
 	parents.push_back(domSquares[0]);
@@ -1314,7 +1388,7 @@ vector<DominantSquare> BruteForce::evolveSquares(vector<DominantSquare> &domSqua
 
 	// Crossover with parents.
 	int desiredLength = domSquares.size() - parents.size() - retained.size();
-	vector<DominantSquare> children;
+	std::vector<DominantSquare> children;
 
 	while (children.size() < desiredLength)
 	{
@@ -1343,7 +1417,7 @@ vector<DominantSquare> BruteForce::evolveSquares(vector<DominantSquare> &domSqua
 // ************ QUICKSORT IMPLEMENTATION ************
 // NOTE: L and R are INCLUSIVE!!
 // Example Initial Call: quicksort(domSquares, 0, domSquares.size()-1);
-void BruteForce::quicksort(vector<DominantSquare> &domSquares, int L, int R, bool reverse)
+void BruteForce::quicksort(std::vector<DominantSquare> &domSquares, int L, int R, bool reverse)
 {
 	int i, j, mid;
 	double piv;
@@ -1387,7 +1461,7 @@ void BruteForce::quicksort(vector<DominantSquare> &domSquares, int L, int R, boo
 }
 
 // ********************************************************************************
-void BruteForce::swap(vector<DominantSquare> &domSquare, int x, int y)
+void BruteForce::swap(std::vector<DominantSquare> &domSquare, int x, int y)
 {
 	DominantSquare temp = domSquare[x];
 	domSquare[x] = domSquare[y];
@@ -1405,46 +1479,338 @@ void BruteForce::swap(vector<DominantSquare> &domSquare, int x, int y)
 //calculate the accuracy of the rules at classifying the data entries correctly.
 void BruteForce::createRules()
 {
-	for (int c = 0; c < classes.size(); c++)
+	int pointsFromClass = 0;
+	int totalPointsInSquare = 0;
+
+
+	// ----------------------- RULE 1 For all Classes -----------------------
+	//for each class
+	for (int i = 0; i < dominantSquares.size(); i++)
 	{
-		for (int p = 0; p < dominantPlanes.size(); p++)
-		{
-			Rules rule;
+		// Declare the rule.
+		Rule rule;
+
+		DominantSquare tempSquare;
+		double bestPurity = 0;
+		//for each plane
+		for (int d = 0; d < dominantSquares[i].size(); d++)
+		{	//pick the highest accuracy dom square
+			if (dominantSquares[i][d].purity > bestPurity)
+			{
+				bestPurity = dominantSquares[i][d].purity;
+				tempSquare = dominantSquares[i][d];
+
+			}
 		}
 
-		// rules.push_back(rule);
-	}
-}
+		// Set limits of dominant square.
+		float xMin = tempSquare.xMin;
+		float xMax = tempSquare.xMax;
+		float yMin = tempSquare.yMin;
+		float yMax = tempSquare.yMax;
+		int dimX = tempSquare.dimensionX;
+		int dimY = tempSquare.dimensionY;
 
+		// for each class in testing.
+		for (int j = 0; j < testing.size() && j < 2; j++) // j < 2 is Classes Limiter!!
+		{
+			// Create Dataclass to hold all the points in the dominant square for this rule.
+			DataClass tempDataClass;
+			tempDataClass.className = testing[j].className;
+
+			// for each point of that class.
+			for (int p = 0; p < testing[j].classDataset.size(); p++)
+			{
+				// Get the point's x,y dimensions and classname it belongs to.
+				float x = testing[j].classDataset[p][dimX];
+				float y = testing[j].classDataset[p][dimY];
+				std::string pointClassname = testing[j].className;
+				
+				// If the point is withing dominant square limits.
+				if (xMin <= x && x <= xMax && yMin <= y && y <= yMax)
+				{
+					// If the point has the same classname as the dominant square.
+					if (tempSquare.className.compare(pointClassname) == 0)
+						pointsFromClass++; // Increment the points for the class.
+					totalPointsInSquare++; // Increment the total points in the square.
+
+					// Add the point to the list of points in dominant square rule.
+					tempDataClass.classDataset.push_back(testing[j].classDataset[p]);
+				}
+			}
+
+			// Push the dataclass with the points to the rule's list of points.
+			if(tempDataClass.classDataset.size() > 0)
+				rule.pointsInRule.push_back(tempDataClass);
+		}
+
+		// Set the rule variables.
+		rule.ruleNum = 1;
+		rule.className = tempSquare.className;
+		rule.in.push_back(tempSquare);
+		rule.accuracy = 100 * (pointsFromClass / (double)totalPointsInSquare);
+
+		// Add the rule to the list of rules.
+		rules.push_back(rule);
+
+		// Reset points in square;
+		pointsFromClass = 0;
+		totalPointsInSquare = 0;
+	} // ----------------------------------------------------------------------
+
+	// ----------------------- RULE 2 For all Classes -----------------------
+	for (int r = 0, ruleSize = rules.size(); r < ruleSize; r++)
+	{
+		std::cout << "\n********* RULE 2 ************\n";
+		Rule rule = rules[r];
+		rule.ruleNum = 2;
+		rule.accuracy = 0;
+
+		if (rule.pointsInRule.size() == 1) // Add more dominant squares to include!!
+		{
+			std::cout << "\n********* INCLUDE ************\n";
+			// Get the dominant square index by classname.
+			int domSquIndex;
+			for (int dS = 0; dS < dominantSquares.size(); dS++)
+			{
+				if (dominantSquares[dS][0].className.compare(rule.className) == 0)
+				{
+					domSquIndex = dS;
+					break;
+				}
+			}
+
+			DominantSquare tempSquare;
+			double bestPurity = 0;
+			//for each plane
+			for (int d = 0; d < dominantSquares[domSquIndex].size(); d++)
+			{	//pick the highest accuracy dom square
+				if (dominantSquares[domSquIndex][d].purity > bestPurity)
+				{
+					// Make sure this dominant square isn't already included in the rule's in vector list.
+					for (int rI = 0; rI < rule.in.size(); rI++)
+					{
+						if (dominantSquares[domSquIndex][d].planeIndex != rule.in[rI].planeIndex)
+						{
+							bestPurity = dominantSquares[domSquIndex][d].purity;
+							tempSquare = dominantSquares[domSquIndex][d];
+						}
+					}
+				}
+			}
+
+			// Set limits of dominant square.
+			float xMin = tempSquare.xMin;
+			float xMax = tempSquare.xMax;
+			float yMin = tempSquare.yMin;
+			float yMax = tempSquare.yMax;
+			int dimX = tempSquare.dimensionX; // Plane dimension x
+			int dimY = tempSquare.dimensionY; // Plane dimension y
+
+			// for each class in testing.
+			for (int j = 0; j < testing.size() && j < 2; j++) // j < 2 is Classes Limiter!!
+			{
+				// Create Dataclass to hold all the points in the dominant square for this rule.
+				DataClass tempDataClass;
+				tempDataClass.className = testing[j].className;
+
+				// for each point of that class.
+				for (int p = 0; p < testing[j].classDataset.size(); p++)
+				{
+					// Get the point's x,y dimensions and classname it belongs to.
+					float x = testing[j].classDataset[p][dimX];
+					float y = testing[j].classDataset[p][dimY];
+					std::string pointClassname = testing[j].className;
+
+					// If the point is withing dominant square limits.
+					if (xMin <= x && x <= xMax && yMin <= y && y <= yMax)
+					{
+						// If the point has the same classname as the dominant square.
+						if (tempSquare.className.compare(pointClassname) == 0)
+							pointsFromClass++; // Increment the points for the class.
+						totalPointsInSquare++; // Increment the total points in the square.
+
+						// Add the point to the list of points in dominant square rule.
+						tempDataClass.classDataset.push_back(testing[j].classDataset[p]);
+					}
+				}
+
+				// Push the dataclass with the points to the rule's list of points.
+				if (tempDataClass.classDataset.size() > 0)
+					rule.pointsInRule.push_back(tempDataClass);
+			}
+
+			// Set the rule variables.
+			rule.in.push_back(tempSquare);
+			rule.accuracy = 100 * (pointsFromClass / (double)totalPointsInSquare);
+
+			// Add the rule to the list of rules.
+			rules.push_back(rule);
+
+			// Reset points in square;
+			pointsFromClass = 0;
+			totalPointsInSquare = 0;
+		}
+
+		else // Else Add more dominant squares to exclude!!
+		{
+			std::cout << "\n********* EXCLUDE ************\n";
+			// For all the classes of the list of points in rule.
+			for (int rP = 0; rP < rule.pointsInRule.size(); rP++)
+			{
+				// If the points classname isn't the same as the rule's classname
+				// and the dataset with those points is NOT empty.
+				if (rule.pointsInRule[rP].className.compare(rule.className) != 0 && rule.pointsInRule[rP].classDataset.size() > 0)
+				{
+					// Get the dominant square index by classname.
+					int domSquIndex;
+					for (int dS = 0; dS < dominantSquares.size(); dS++)
+					{
+						if (dominantSquares[dS][0].className.compare(rule.pointsInRule[rP].className) == 0)
+						{
+							domSquIndex = dS;
+							break;
+						}
+					}
+
+					// For every dominant square in that list.
+					std::vector<DominantSquare> squares;
+					for (int s = 0; s < dominantSquares[domSquIndex].size(); s++)
+					{
+						int pointsInSquare = 0;
+						int totalPoints = 0;
+
+						DominantSquare tempSquare = dominantSquares[domSquIndex][s];
+
+						// Set limits of dominant square.
+						float xMin = tempSquare.xMin;
+						float xMax = tempSquare.xMax;
+						float yMin = tempSquare.yMin;
+						float yMax = tempSquare.yMax;
+						int dimX = tempSquare.dimensionX; // Plane dimension x
+						int dimY = tempSquare.dimensionY; // Plane dimension y
+
+						// For every point in that class.
+						for (int p = 0; p < rule.pointsInRule[rP].classDataset.size(); p++)
+						{
+							// Get the point's x,y dimensions and classname it belongs to.
+							float x = rule.pointsInRule[rP].classDataset[p][dimX];
+							float y = rule.pointsInRule[rP].classDataset[p][dimY];
+
+							// If the point is withing dominant square limits.
+							if (xMin <= x && x <= xMax && yMin <= y && y <= yMax)
+								pointsInSquare++; // Increment the points for the class.
+							totalPoints++; // Increment the total points in the square.
+						}
+
+						tempSquare.purity = 100 * (pointsInSquare / (double)totalPoints);
+						squares.push_back(tempSquare);
+						std::cout << "Exclude Purity: " << tempSquare.purity << "\tClass Points in Square: " << pointsInSquare;
+						std::cout << "\tTotal Points: " << totalPoints << std::endl;
+					}
+
+					// Pick the dominant square with the highest purity to exclude.
+					DominantSquare tempSquare;
+					int domSquareIndex2;
+					double bestPurity = 0;
+					//for each plane
+					for (int d = 0; d < squares.size(); d++)
+					{	//pick the highest accuracy dom square
+						if (squares[d].purity > bestPurity)
+						{
+							// Make sure this dominant square isn't already included in the rule's out vector list.
+							for (int rO = 0; rO < rule.in.size(); rO++)
+							{
+								if (squares[d].planeIndex != rule.in[rO].planeIndex)
+								{
+									bestPurity = squares[d].purity;
+									domSquareIndex2 = d;
+								}
+							}
+						}
+					}
+					
+					// Set the tempSquare using domSquareIndex.
+					tempSquare = dominantSquares[domSquIndex][domSquareIndex2];
+
+					// Set limits of dominant square.
+					float xMin = tempSquare.xMin;
+					float xMax = tempSquare.xMax;
+					float yMin = tempSquare.yMin;
+					float yMax = tempSquare.yMax;
+					int dimX = tempSquare.dimensionX; // Plane dimension x
+					int dimY = tempSquare.dimensionY; // Plane dimension y
+
+					// For every point in that class.
+					std::vector<std::vector<float>> newdataset;
+					for (int p = 0; p < rule.pointsInRule[rP].classDataset.size(); p++)
+					{
+						// Get the point's x,y dimensions and classname it belongs to.
+						float x = rule.pointsInRule[rP].classDataset[p][dimX];
+						float y = rule.pointsInRule[rP].classDataset[p][dimY];
+
+						// If the point is outside dominant square limits.
+						if (x < xMin || x > xMax || y < yMin || y > yMax)
+							newdataset.push_back(rule.pointsInRule[rP].classDataset[p]);
+					}
+
+					// Update the new dataset of pointsInRule in rule.
+					rule.pointsInRule[rP].classDataset = newdataset;
+
+					// Set the rule variables.
+					rule.out.push_back(tempSquare);
+
+					// Update the rule accuracy.
+					pointsFromClass = 0;
+					totalPointsInSquare = 0;
+					for (int ps = 0; ps < rule.pointsInRule.size(); ps++)
+					{
+						if (rule.pointsInRule[ps].className.compare(rule.className) == 0)
+							pointsFromClass += rule.pointsInRule[ps].classDataset.size();
+						totalPointsInSquare += rule.pointsInRule[ps].classDataset.size();
+					}
+					rule.accuracy = 100 * (pointsFromClass / (double)totalPointsInSquare);
+				}
+			}
+			// Add the rule to the list of rules.
+			rules.push_back(rule);
+		}
+	}
+	// ----------------------------------------------------------------------
+}
+//function to link rectangles to maximize purity by being inclusive and exclusive of other rectangles
+
+
+/*
 double BruteForce::testRule()
 {
 
-	Rules rule;
+	Rule rule;
 	rule.className = classes[0].className;
 	rule.in.push_back(dominantPlanes[0].domSquares[0]);
 	rule.out.push_back(dominantPlanes[0].domSquares[1]);
 	int countCorrect = 0;
 	int countFalse = 0;
 	bool checkNext = false;
-	for (int j = 0; j < testing.size(); j++) 
+	for (int j = 0; j < testing.size(); j++)
 	{
-			for (int i = 0; i < testing[j].classDataset.size(); i++)
+		for (int i = 0; i < testing[j].classDataset.size(); i++)
+		{
+			checkNext = checkIn(rule, countFalse, j, i);
+			if (checkNext)
 			{
-				checkNext = checkIn(rule, countFalse, j, i);
-				if (checkNext) 
-				{
-					checkNext = checkOut(rule, countFalse, checkNext, j, i);
-					if(checkNext)
-						countCorrect++;
-				}
+				checkNext = checkOut(rule, countFalse, checkNext, j, i);
+				if (checkNext)
+					countCorrect++;
 			}
+		}
 	}
-   cout <<"\n\n" << countCorrect << endl;
-   cout << countFalse << endl;
+	cout << "\n\n" << countCorrect << endl;
+	cout << countFalse << endl;
 	return countCorrect;
 }
 
-bool BruteForce::checkIn(Rules rule, int &countFalse, int j, int i)
+bool BruteForce::checkIn(Rule rule, int &countFalse, int j, int i)
 {
 	bool checkNext = false;
 	for (int k = 0; k < rule.in.size(); k++)
@@ -1470,7 +1836,7 @@ bool BruteForce::checkIn(Rules rule, int &countFalse, int j, int i)
 	return checkNext;
 }
 
-bool BruteForce::checkOut(Rules rule, int &countFalse, bool &checkNext, int j, int i)
+bool BruteForce::checkOut(Rule rule, int &countFalse, bool &checkNext, int j, int i)
 {
 	for (int k = 0; k < rule.out.size(); k++)
 	{
@@ -1496,3 +1862,4 @@ bool BruteForce::checkOut(Rules rule, int &countFalse, bool &checkNext, int j, i
 
 	return checkNext;
 }
+*/
